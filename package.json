@@ -1,0 +1,26 @@
+{
+  "name": "fitjourney2.0",
+  "version": "1.0.0",
+  "description": "Fitjourney 2.0\r 1.User/Habit seeker\r  -User access mealplans and workout plans after connecting(paying) to nutritionist/fit instructor. \r  -Free trial period to market the product to users\r  -users can create build a habit without paying for the product(free version)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rnafula/FITJOURNEY2.0.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rnafula/FITJOURNEY2.0/issues"
+  },
+  "homepage": "https://github.com/rnafula/FITJOURNEY2.0#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "mysql": "^2.18.1"
+  }
+}
