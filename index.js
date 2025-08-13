@@ -16,21 +16,87 @@ app.use(
   session({
     secret: "Fitjourney2.0",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie: {secure: false}
   })
 ); 
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, "public")));
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null; // make sure it's always defined
   next();
 });
+
+function login(res){
+   return res.redirect("/login")
+}
+function requireRole(req,res,next){
+ const path =req.path;
+ const role =req.session.user?.role; 
+ const publicRoutes =["/", "/login","/register","/logout"];
+ const nutritionistRoutes =["/nutritionist-dash", ...publicRoutes]
+ const instructorRoutes =["/instructor-dash", ...publicRoutes]
+ const adminRoutes =["/admin-dash", ...publicRoutes,...nutritionistRoutes,...instructorRoutes]
+  
+ if (publicRoutes.includes(path)){
+    return next()
+ }
+ if(!req.session.user){
+            return res.redirect("/login")
+    }
+
+ if(role === "nutritionist" && ![...nutritionistRoutes,...publicRoutes].includes(path)){
+    return res.status(403).send("Access denied: Nutrionist only")
+ }
+ if(role === "fit_instructor" && ![...instructorRoutes,...publicRoutes].includes(path)){
+    return res.status(403).send("Access denied: Instructor only")
+ }
+ if(role === "admin" && ![...adminRoutes,...publicRoutes].includes(path)){
+    return res.status(403).send("Access denied: Admin only")
+ }
+ if (role === "user" && ![...publicRoutes, "/user-dash"].includes(path)) {
+        return res.status(403).send("Access denied: User only");
+    }
+  next()
+            
+}
+    
+
+
+
+function requireLogin(req, res, next){
+    if(!req.session.user){
+        return res.redirect("/login")
+    }
+    next();
+
+}
+
+function redirection( req, res, next){
+    const role =req.session.user?.role; 
+        if (role === "user"){
+          return  res.redirect("/user-dash")
+        }
+        else if (role === "nutritionist"){
+           return res.redirect("/nutritionist-dash")
+        }
+        else  if (role === "fit_instructor"){
+           return res.redirect("/instructor-dash")
+        }
+        else if(role === "admin"){
+          return  res.redirect("/admin-dash")
+        }
+        else return res.status(403).send("Not valid user access denied")
+
+    }
+
+
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html");
     
     
 });
-app.get("/register-user",(req, res)=>{
+app.get("/register-user", (req, res)=>{
 res.render("/register-user.html")
 })
 app.get("/register-instructor", (req, res) => {
@@ -40,11 +106,20 @@ app.get("/register-nutritionist", (req, res)=>{
     res.render("register-nutritionist.html")
 })
 app.get("/login", (req, res) => {
-    res.render("login.html")
-})
-app.get("/user-dash", (req, res)=>{
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+app.get("/user-dash", requireLogin,requireRole, (req, res)=>{
     res.render("user-dash.ejs")
 }) 
+app.get("/nutritionist-dash", requireLogin,requireRole, (req, res)=>{
+    res.render("nutritionist-dash.ejs")
+})
+app.get("/instructor-dash", requireLogin,requireRole, (req, res)=>{
+    res.render("instructor-dash.ejs")
+})
+app.get("/admin-dash",requireLogin,requireRole, (req, res)=>{
+    res.render("admin-dash.ejs")
+})
 
 
 app.post("/register-user",(req,res) =>{
@@ -56,7 +131,8 @@ app.post("/register-user",(req,res) =>{
     db.query(`INSERT INTO users(firstname,lastname, username, email, password, role) VALUES(?,?,?,?,?,?)`,
         [firstname,lastname, username, email, hashedPassword,defaultRole],(err,result)=>{
         if (err) throw err;
-        res.json({message:'User register successifully,'})
+        login(res)
+       /*  res.json({message:'User register successifully,'}) */
             
     })
 
@@ -70,8 +146,10 @@ app.post("/register-instructor",(req, res)=>{
      db.query(`INSERT INTO users(firstname, lastname, username, email, password, role,client_charges,license) VALUES(?,?,?,?,?,?,?,?)`,
         [firstname, lastname, username, email, hashedPassword, dRole, client_charges,license],(err,result)=>{
         if (err) throw err;
-        res.json({message:'User register successifully,'})
+        login(res)
+      /*   res.json({message:'User register successifully,'}) */
      })
+
 })
 app.post("/register-nutritionist",(req,res)=>{
     const{firstname, lastname, username, email, password, role, client_charges, license} = req.body;
@@ -81,7 +159,8 @@ app.post("/register-nutritionist",(req,res)=>{
     db.query(`INSERT INTO users(firstname, lastname, username, email, password, role, client_charges,license) VALUES(?,?,?,?,?,?,?,?)`,
         [firstname, lastname, username, email, hashedPassword, derole, client_charges,license],(err,result)=>{
             if (err) throw err;
-            res.json({message:'User register successifully,'})
+            login(res)
+           /*  res.json({message:'User register successifully,'}) */
         })
 })
 app.post("/login", (req, res)=>{
@@ -104,7 +183,16 @@ app.post("/login", (req, res)=>{
          if(!match){
             return res.status(401).json({message: "Invalid password"})
          }
-         res.redirect("/user-dash")
+
+         req.session.user={
+            id:user.id,
+            role: user.role,
+            username:user.username
+         }
+         console.log(req.session.user.role);
+         return redirection(req, res)
+         
+         
         })
        
         
