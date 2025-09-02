@@ -113,9 +113,30 @@ app.get("/login", (req, res) => {
 app.get("/user-dash", requireLogin,requireRole, (req, res)=>{
     res.render("user-dash.ejs")
 }) 
-app.get("/nutritionist-dash", requireLogin,requireRole, (req, res)=>{
-    res.render("nutritionist-dash.ejs")
-})
+app.get("/nutritionist-dash", requireLogin, requireRole, (req, res) => {
+  const nutritionistId = req.session.user.id;
+
+  // Get meal plans by this nutritionist
+  db.query(
+    "SELECT * FROM meal_plans WHERE nutritionist_id = ?",
+    [nutritionistId],
+    (err, mealPlans) => {
+      if (err){
+        console.error("Error fetching assignments:", err);
+            return res.status(500).send("Database error");
+      }
+
+     res.render("nutritionist-dash", {
+      user:req.session.user,
+      meal_plans : mealPlans
+     })
+      
+    }
+  
+  );
+  
+});
+
 app.get("/instructor-dash", requireLogin,requireRole, (req, res)=>{
     res.render("instructor-dash.ejs")
 })
@@ -124,10 +145,10 @@ app.get("/admin-dash",requireLogin,requireRole, (req, res)=>{
 })
 /* creating meal plan and adding meals */
 app.get("/create-meal-plan", (req, res)=>{
-res.sendFile(path.join(__dirname, "public", "/create-meal-plan.html"));
+res.render("create-meal-plan")
 })
 app.get("/add-meal", (req, res) => {
-res.sendFile(path.join(__dirname, "public", "/add-meal.html"));
+res.render("add-meal")
 
 });
 
@@ -203,14 +224,34 @@ app.post("/login", (req, res)=>{
          
          
         })
-       
-        
-         
-
-      
-
-       })
-
+ })
+app.post("/create-meal-plan", (req, res)=>{
+  //authorisation
+  if(req.session.user.role !== "nutritionist"){
+    return res.status(403).send("Only nutritionists can create meal plans");
+  }
+//deconstruction
+const {title, description,duration_days} =req.body
+const nutritionist_id = req.session.user.id;
+//database querying
+db.query("INSERT INTO meal_plans (nutritionist_id,title,description,duration_days) VALUE (?,?,?,?)",
+  [nutritionist_id, title, description, duration_days],
+  (err, result) => {
+            if (err) throw err;
+            res.json({ message: "Meal plan created", mealPlanId: result.insertId });
+        }
+ )
+})
+app.post("/add-meal", (req,res)=>{
+  const {meal_plan_id, day_number, meal_type, description} =req.body
+  db.query("INSERT INTO meals (meal_plan_id, day_number, meal_type, description) VALUE (?,?,?,?)",
+    [meal_plan_id, day_number, meal_type, description],
+    (err, result)=>{
+      if (err) throw err;
+      res.json({message:"Meal Added to",mealId: result.insertId  })
+    }
+  )
+})
 app.get("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {

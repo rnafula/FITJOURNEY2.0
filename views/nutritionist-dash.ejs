@@ -1,17 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nutritionist Dashboard</title>
+  <style>
+    .overview {
+      display: flex;
+      justify-content: space-around;
+      width: 80%;
+      margin: 20px auto;
+    }
+    .plans, .clients {
+      display: flex;
+      flex-direction: column;
+      background-color: #6c93db;
+      border-radius: 9px;
+      width: 45%;
+      padding: 15px;
+      text-align: center;
+      color: white;
+      font-weight: bold;
+    }
+
+    .popular_plans {
+        display:flex;
+        flex-wrap: wrap;
+      width: 80%;
+      margin: 20px auto;
+      background: #f7fafc;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      gap:8px;
+      justify-content: center;
+    }
+    .plans_p{
+      display: flex;
+      flex-direction: column;
+      border:1px solid black;
+      border-radius: 9px;
+      width: 35%;
+      padding: 15px;
+      text-align: center;
+      color:  #6c93db;
+      font-weight: bold;
+    }
+   
+   
+    .text{
+        text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <%- include("_header.ejs")%> <br />
-    <h1>Nutritionist Dashboard</h1>
-   <% if(user){ %>
-    <h2>Hi <%= user.username %></h2>
-   <% }else{ %>
-        <h2>Hi Nutritionist</h2>
-    <% } %>
+  <%- include("_header.ejs") %>
+  
+  <h1 class="text">Nutritionist Dashboard</h1>
+ 
+  <h1 class="text">Summary</h1>
+  <h2 class="text">Your Work Overview</h2>
+  <div class="overview">
+    <div class="plans">
+      <p>Total Plans</p>
+      <p>67</p>
+    </div>
+    <div class="clients">
+      <p>Total Clients</p>
+      <p>0</p>
+    </div>
+  </div>
+  <h2 class="text">Popular Plans</h2>
+  <div class="popular_plans">
+    <div class="plans_p">
+         <p>7 Days Weight loss</p>
+         <p>5 users</p>
+    </div>
+    <div class="plans_p">
+         <p>7 Days Weight loss</p>
+         <p>5 users</p>
+    </div>
+    <div class="plans_p">
+         <p>7 Days Weight loss</p>
+         <p>5 users</p>
+    </div>
+    <div class="plans_p">
+         <p>7 Days Weight loss</p>
+         <p>5 users</p>
+    </div>
+
+   
+
+  </div>
+
+
 </body>
 </html>

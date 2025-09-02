@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Header</title>
 </head>
 <body>
   
@@ -14,24 +14,24 @@
   <nav class="navbar">
     <% if (user && user.role === 'nutritionist'){%>
     <a href="/nutritionist-dash">Dashboard</a>
-    <a href="/create-meal-plan">Create Meal Plans</a>
+    <a href="/create-meal-plan">Create Plans</a>
      <a href="/add-meal">Add Meal</a>
-    <a href="/my-plans">My plans</a>
+    <a href="/my-plans">Plans</a>
     <a href="/regular/profile"><%= user.username%></a>
     <a href="/logout">Logout</a>
 
     <%} else if ( user && user.role === 'fit_instructor'){%>
     <a href="/instructor-dash">Dashboard</a>
     <a href="#workout">Premium</a>
-    <a href="#nutrition">Create Workout Plans</a>
+    <a href="#nutrition">Create Plans</a>
     <a href="#profile"><%= user.username%></a>
     <a href="/logout">Logout</a>
 
     <%} else if (user && user.role === 'user'){%>
     <a href="/user-dash">Dashboard</a>
-    <a href="/user-dash">Nutrition Center</a>
-    <a href="/regular/saved_meal_plans">My Plans</a>
-    <a href="#progress">My Progress</a>
+    <a href="/user-dash">Nutrition</a>
+    <a href="/regular/saved_meal_plans">Plans</a>
+    <a href="#progress">Progress</a>
     <a href="/regular/profile"><%= user.username %></a>
     <a href="/logout">Logout</a>
 
@@ -57,8 +57,9 @@
     color: #c9d9e1;
     font-size: 18px;
     align-items: center;
-    padding: 10px;
+    padding: 5px;
     border-radius: 5px;
+  
   }
   .navbar > a:hover {
     background-color: #f7f7f796;
@@ -72,7 +73,7 @@
     z-index: 1000;
     display: flex;
     justify-content: space-between;
-    padding: 20px;
+    padding: 10px;
     align-items: center;
     background-color: #6c93db;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
@@ -85,7 +86,7 @@
   }
   .navbar {
     display: flex;
-    gap: 20px;
+    
   }
   .hamburger {
     display: none;
