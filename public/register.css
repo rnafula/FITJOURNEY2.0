@@ -1,11 +1,11 @@
 body {
   font-family: Arial, sans-serif;
   background-color: #f7fafc;
-  padding: 10px;
+  padding: 5px;
 }
 
 form {
-  background-color: rgb(202, 226, 238);
+  background-color: #6c93db;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -28,10 +28,10 @@ label {
   font-weight: bold;
 }
 
-input, select {
+input {
   width: 100%;
   margin: auto;
-  padding: 8px;
+  padding: 4px;
   border: 1px solid #cbd5e0;
   border-radius: 6px;
   font-size: 1em;
@@ -44,9 +44,10 @@ input:focus, select:focus {
 }
 
 button {
+
   background-color: #4fd1c5;
   color: white;
-  padding: 12px;
+  padding: 4px;
   width: 100%;
   margin-left: 3px;
   border: none;

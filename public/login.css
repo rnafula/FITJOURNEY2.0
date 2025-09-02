@@ -5,7 +5,7 @@ body {
 }
 
 form {
-  background-color: rgb(202, 226, 238);
+  background-color: #6c93db;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -58,7 +58,7 @@ button {
   border-radius: 8px;
   font-size: 1em;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {

@@ -34,7 +34,7 @@ function requireRole(req,res,next){
  const path =req.path;
  const role =req.session.user?.role; 
  const publicRoutes =["/", "/login","/register","/logout"];
- const nutritionistRoutes =["/nutritionist-dash", ...publicRoutes]
+ const nutritionistRoutes =["/nutritionist-dash", "/add-meal", "/create-meal-plan", ...publicRoutes]
  const instructorRoutes =["/instructor-dash", ...publicRoutes]
  const adminRoutes =["/admin-dash", ...publicRoutes,...nutritionistRoutes,...instructorRoutes]
   
@@ -72,19 +72,19 @@ function requireLogin(req, res, next){
 
 }
 
-function redirection( req, res, next){
+function redirection( req, res){
     const role =req.session.user?.role; 
         if (role === "user"){
-          return  res.redirect("/user-dash")
+          return  res.render("user-dash")
         }
         else if (role === "nutritionist"){
-           return res.redirect("/nutritionist-dash")
+           return res.render("nutritionist-dash")
         }
         else  if (role === "fit_instructor"){
-           return res.redirect("/instructor-dash")
+           return res.render("instructor-dash")
         }
         else if(role === "admin"){
-          return  res.redirect("/admin-dash")
+          return  res.render("admin-dash")
         }
         else return res.status(403).send("Not valid user access denied")
 
@@ -92,21 +92,23 @@ function redirection( req, res, next){
 
 
 app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/index.html");
+    res.sendFile(path.join(__dirname, "public", "/index.html"));
     
     
 });
 app.get("/register-user", (req, res)=>{
-res.render("/register-user.html")
+res.sendFile(path.join(__dirname, "public", "/register-user.html"));
 })
 app.get("/register-instructor", (req, res) => {
-  res.render("register-instructor.html")
+res.sendFile(path.join(__dirname, "public", "/register-instructor.html"));
+
 });
 app.get("/register-nutritionist", (req, res)=>{
-    res.render("register-nutritionist.html")
+    res.sendFile(path.join(__dirname, "public", "/register-nutritionist.html"));
+
 })
 app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "login.html"));
+  res.sendFile(path.join(__dirname, "public", "/login.html"));
 });
 app.get("/user-dash", requireLogin,requireRole, (req, res)=>{
     res.render("user-dash.ejs")
@@ -120,7 +122,14 @@ app.get("/instructor-dash", requireLogin,requireRole, (req, res)=>{
 app.get("/admin-dash",requireLogin,requireRole, (req, res)=>{
     res.render("admin-dash.ejs")
 })
+/* creating meal plan and adding meals */
+app.get("/create-meal-plan", (req, res)=>{
+res.sendFile(path.join(__dirname, "public", "/create-meal-plan.html"));
+})
+app.get("/add-meal", (req, res) => {
+res.sendFile(path.join(__dirname, "public", "/add-meal.html"));
 
+});
 
 app.post("/register-user",(req,res) =>{
     const {firstname, lastname, username, email, password, role} =req.body;
@@ -201,6 +210,19 @@ app.post("/login", (req, res)=>{
       
 
        })
+
+app.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Logout error:", err);
+      return res.status(500).send("Failed to logout");
+    }
+    res.clearCookie("connect.sid"); // clear the session cookie
+    res.redirect("/login"); // or redirect to "/"
+  });
+});
+
+       //start app
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
 });

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Meal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7fafc;
+      padding: 20px;
+    }
+
+    .container {
+      background: #6c93db;
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2d3748;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+      color: #4a5568;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e0;
+      margin-bottom: 15px;
+      font-size: 1em;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #38b2ac;
+      box-shadow: 0 0 5px rgba(56, 178, 172, 0.4);
+      outline: none;
+    }
+
+    button {
+      background-color: #4fd1c5;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      width: 100%;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #38b2ac;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .back-link a {
+      color: #2b6cb0;
+      text-decoration: underline;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Add Meal</h2>
+    <form action="/add-meal" method="POST">
+      <label for="mealPlan">Select Meal Plan</label>
+      <select id="mealPlan" name="meal_plan_id" required>
+        <option value="">--Choose Meal Plan--</option>
+        <!-- These options should be dynamically filled with plans from DB -->
+        <option value="1">Weight Loss Plan</option>
+        <option value="2">Muscle Gain Plan</option>
+      </select>
+
+      <label for="mealType">Meal Type</label>
+      <select id="mealType" name="meal_type" required>
+        <option value="breakfast">Breakfast</option>
+        <option value="lunch">Lunch</option>
+        <option value="dinner">Dinner</option>
+        <option value="snack">Snack</option>
+      </select>
+
+      <label for="mealName">Meal Name</label>
+      <input type="text" id="mealName" name="meal_name" placeholder="e.g., Grilled Chicken Salad">
+
+      <label for="mealDescription">Description</label>
+      <textarea id="mealDescription" name="meal_description" rows="3" placeholder="Details of the meal..."></textarea>
+
+      <button type="submit">Save Meal</button>
+    </form>
+    <div class="back-link">
+      <a href="/nutritionist-dash">← Back to Dashboard</a>
+    </div>
+  </div>
+
+</body>
+</html>

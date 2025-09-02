@@ -6,7 +6,12 @@
     <title>Dashboard</title>
 </head>
 <body>
+    <%- include("_header.ejs")%> <br />
     <h1>Nutritionist Dashboard</h1>
-    <h2>Hi Nutritionist</h2>
+   <% if(user){ %>
+    <h2>Hi <%= user.username %></h2>
+   <% }else{ %>
+        <h2>Hi Nutritionist</h2>
+    <% } %>
 </body>
 </html>

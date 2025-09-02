@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Meal Plan</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7fafc;
+      padding: 20px;
+    }
+
+    .container {
+      background: #6c93db;
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2d3748;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+      color: #4a5568;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e0;
+      margin-bottom: 15px;
+      font-size: 1em;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #38b2ac;
+      box-shadow: 0 0 5px rgba(56, 178, 172, 0.4);
+      outline: none;
+    }
+
+    button {
+      background-color: #4fd1c5;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      width: 100%;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #38b2ac;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .back-link a {
+      color: #2b6cb0;
+      text-decoration: underline;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Create Meal Plan</h2>
+    <form action="/create-mealplan" method="POST">
+      <label for="name">Meal Plan Name</label>
+      <input type="text" id="name" name="title" placeholder="e.g., Weight Loss Plan">
+
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="3" placeholder="Short description of the plan..."></textarea>
+
+      <label for="duration">Duration (days)</label>
+      <input type="number" id="duration" name="duration_days" placeholder="e.g., 7">
+
+      <button type="submit">Save Meal Plan</button>
+    </form>
+    <div class="back-link">
+      <a href="/nutritionist-dash">← Back to Dashboard</a>
+    </div>
+  </div>
+
+</body>
+</html>
