@@ -1,98 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nutritionist Dashboard</title>
   <style>
+    :root{
+      --accent: #6c93db;
+      --muted: #f1f5f9;
+      --card-border: #e6eefc;
+      --text: #233044;
+    }
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      margin: 0;
+      background: #f7fafc;
+      color: var(--text);
+    }
+    .text { text-align: center; margin: 8px 0; }
+    header { margin-bottom: 8px; }
+
     .overview {
-      display: flex;
-      justify-content: space-around;
-      width: 80%;
-      margin: 20px auto;
+      display:flex;
+      gap:20px;
+      justify-content: center;
+      width: 90%;
+      max-width: 1100px;
+      margin: 18px auto;
     }
     .plans, .clients {
-      display: flex;
-      flex-direction: column;
-      background-color: #6c93db;
-      border-radius: 9px;
-      width: 45%;
-      padding: 15px;
-      text-align: center;
+      background: var(--accent);
       color: white;
-      font-weight: bold;
+      border-radius: 10px;
+      padding: 18px;
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      box-shadow: 0 6px 18px rgba(35,48,68,0.06);
     }
+    .plans p.small, .clients p.small { font-size: 0.95rem; margin: 0; opacity: 0.95; }
+    .plans p.big, .clients p.big { font-size: 1.8rem; margin: 6px 0 0 0; font-weight: 700; }
 
     .popular_plans {
-        display:flex;
-        flex-wrap: wrap;
-      width: 80%;
-      margin: 20px auto;
-      background: #f7fafc;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      gap:8px;
-      justify-content: center;
+      width: 90%;
+      max-width: 1100px;
+      margin: 18px auto;
+      background: var(--muted);
+      padding: 14px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
+
+    /* grid used for "popular_plans" and "My Plans" to keep your class names */
+    .popular_plans .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      align-items: start;
+      justify-items: stretch;
+    }
+
     .plans_p{
+      background: white;
+      border: 1px solid var(--card-border);
+      border-radius: 9px;
+      padding: 14px;
+      text-align: left;
+      color: #253346;
+      font-weight: 600;
+      min-height: 120px;
       display: flex;
       flex-direction: column;
-      border:1px solid black;
-      border-radius: 9px;
-      width: 35%;
-      padding: 15px;
-      text-align: center;
-      color:  #6c93db;
-      font-weight: bold;
+      justify-content: space-between;
     }
-   
-   
-    .text{
-        text-align: center;
+
+    .plan-title { color: var(--accent); margin: 0 0 6px 0; font-size: 1.05rem; }
+    .plan-desc { font-weight: 400; font-size: 0.95rem; margin: 0 0 8px 0; color: #475569; }
+    .plan-meta { font-size: 0.9rem; color: #334155; margin-top: 6px; }
+
+    .plan-actions { display:flex; gap:8px; margin-top:10px; justify-content: flex-end; }
+    .btn {
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-edit { background: var(--accent); color: white; }
+    .btn-delete { background: #ef4444; color: white; }
+
+    @media (max-width:700px){
+      .overview { flex-direction: column; align-items:center; }
+      .plans, .clients { max-width: 100%; width: 90%; }
     }
   </style>
 </head>
 <body>
   <%- include("_header.ejs") %>
-  
+
   <h1 class="text">Nutritionist Dashboard</h1>
- 
-  <h1 class="text">Summary</h1>
-  <h2 class="text">Your Work Overview</h2>
+  <p class="text"><%= user ? user.username : "No user in session" %></p>
+
+  <h2 class="text">Summary</h2>
   <div class="overview">
     <div class="plans">
-      <p>Total Plans</p>
-      <p>67</p>
+      <p class="small">Total Plans</p>
+      <p class="big"><%= mealplan ? mealplan.length : 0 %></p>
     </div>
     <div class="clients">
-      <p>Total Clients</p>
-      <p>0</p>
+      <p class="small">Total Clients</p>
+      <p class="big">0</p>
     </div>
   </div>
+
   <h2 class="text">Popular Plans</h2>
   <div class="popular_plans">
-    <div class="plans_p">
-         <p>7 Days Weight loss</p>
-         <p>5 users</p>
+    <div class="plans-grid">
+      <!-- keep your existing placeholders (you can replace these with DB-driven content later) -->
+      <div class="plans_p"><p class="plan-title">7 Days Weight loss</p><p class="plan-desc">Sample summary</p><p class="plan-meta">5 users</p></div>
+      <div class="plans_p"><p class="plan-title">14 Days Detox</p><p class="plan-desc">Sample summary</p><p class="plan-meta">3 users</p></div>
+      <div class="plans_p"><p class="plan-title">Maintenance Plan</p><p class="plan-desc">Sample summary</p><p class="plan-meta">2 users</p></div>
+      <div class="plans_p"><p class="plan-title">Muscle Gain</p><p class="plan-desc">Sample summary</p><p class="plan-meta">4 users</p></div>
     </div>
-    <div class="plans_p">
-         <p>7 Days Weight loss</p>
-         <p>5 users</p>
-    </div>
-    <div class="plans_p">
-         <p>7 Days Weight loss</p>
-         <p>5 users</p>
-    </div>
-    <div class="plans_p">
-         <p>7 Days Weight loss</p>
-         <p>5 users</p>
-    </div>
-
-   
-
   </div>
 
+  <h2 class="text" >My Plans</h2>
+  <div class="popular_plans" id="myplans">
+    <div class="plans-grid">
+      <% if (mealplan && mealplan.length > 0) { %>
+        <% mealplan.forEach(plan => { %>
+          <div class="plans_p">
+            <div>
+              <p class="plan-title"><%= plan.title %></p>
+              <p class="plan-desc"><%= plan.description %></p>
+              <p class="plan-meta"><strong>Duration:</strong> <%= plan.duration_days %> days</p>
+            </div>
+
+            <div class="plan-actions">
+              <!-- edit link -->
+                 <a href="/mealplans/<%= plan.id %>/add-meal">➕ Add Meals</a>
+
+              <!-- simple delete form (POST) — implement server-side POST /mealplans/delete/:id -->
+             
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p style="text-align:center; width:100%;">No mealplans created yet.</p>
+      <% } %>
+    </div>
+  </div>
 
 </body>
 </html>

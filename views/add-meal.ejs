@@ -81,9 +81,9 @@
 
   <div class="container">
     <h2>Add Meal</h2>
-    <form action="/add-meal" method="POST">
+    <form action="/mealplans/<%= mealplan.id %>/add-meal" method="POST">
       <label for="mealPlan">Select Meal Plan</label>
-      <input type="number" id="mealPlan" name="meal_plan_id" required>
+      <input type="hidden" id="mealPlan" name="meal_plan_id" required>
      <!--  <select id="mealPlan" name="meal_plan_id" required>
         <option value="">--Choose Meal Plan--</option>
          These options should be dynamically filled with plans from DB

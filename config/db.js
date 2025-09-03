@@ -1,15 +1,11 @@
-const mysql = require('mysql');
+// config/db.js
+const mysql = require("mysql2/promise");
 
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'fitjourney2.0'
-});
-
-db.connect((err) => {
-  if (err) throw err;
-  console.log('MySQL Connected...');
+const db = mysql.createPool({
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "fitjourney2.0",
 });
 
 module.exports = db;

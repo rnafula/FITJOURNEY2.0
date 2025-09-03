@@ -4,14 +4,14 @@ const bcrypt =require("bcrypt")
 const ejs = require("ejs")
 const cors = require("cors");
 const db = require('./config/db');
-const session = require("express-session");
+
 const path =require("path")
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.json()); // for JSON
 app.use(express.urlencoded({ extended: true })); // for HTML forms
-
+const session = require("express-session");
 app.use(
   session({
     secret: "Fitjourney2.0",
@@ -29,7 +29,7 @@ app.use((req, res, next) => {
 
 function login(res){
    return res.redirect("/login")
-}
+} 
 function requireRole(req,res,next){
  const path =req.path;
  const role =req.session.user?.role; 
@@ -75,16 +75,16 @@ function requireLogin(req, res, next){
 function redirection( req, res){
     const role =req.session.user?.role; 
         if (role === "user"){
-          return  res.render("user-dash")
+          return  res.redirect("/user-dash")
         }
         else if (role === "nutritionist"){
-           return res.render("nutritionist-dash")
+           return res.redirect("/nutritionist-dash")
         }
         else  if (role === "fit_instructor"){
-           return res.render("instructor-dash")
+           return res.redirect("/instructor-dash")
         }
         else if(role === "admin"){
-          return  res.render("admin-dash")
+          return  res.redirect("/admin-dash")
         }
         else return res.status(403).send("Not valid user access denied")
 
@@ -113,30 +113,40 @@ app.get("/login", (req, res) => {
 app.get("/user-dash", requireLogin,requireRole, (req, res)=>{
     res.render("user-dash.ejs")
 }) 
-app.get("/nutritionist-dash", requireLogin, requireRole, (req, res) => {
+app.get("/nutritionist-dash", requireLogin, requireRole, async(req, res) => {
+  console.log("User session:",req.session.user);
+  
   const nutritionistId = req.session.user.id;
 
   // Get meal plans by this nutritionist
-  db.query(
-    "SELECT * FROM meal_plans WHERE nutritionist_id = ?",
-    [nutritionistId],
-    (err, mealPlans) => {
-      if (err){
-        console.error("Error fetching assignments:", err);
-            return res.status(500).send("Database error");
-      }
-
-     res.render("nutritionist-dash", {
-      user:req.session.user,
-      meal_plans : mealPlans
-     })
-      
-    }
+  try{
+  const [mealplan] = await db.query(
+    "SELECT * FROM meal_plans WHERE nutritionist_id = ? ",
+    [nutritionistId]  
+  )
+  const [meals] =await db.query(
+    "SELECT * FROM meals WHERE meal_plan_id = 6 ",
   
-  );
-  
-});
 
+  )
+   const [user_meal_plans] =await db.query(
+    "SELECT * FROM user_mealplans WHERE meal_plan_id = 6 ",
+  
+
+  )
+  console.log("MEALPLANS :", mealplan )
+  res.render("nutritionist-dash",{
+    mealplan,
+    meals,
+    user_meal_plans,
+  })
+  
+
+   }catch(error){
+  console.error(error);
+  res.status(500).send("Error loading Dashboard")
+}
+})
 app.get("/instructor-dash", requireLogin,requireRole, (req, res)=>{
     res.render("instructor-dash.ejs")
 })
@@ -147,14 +157,18 @@ app.get("/admin-dash",requireLogin,requireRole, (req, res)=>{
 app.get("/create-meal-plan", (req, res)=>{
 res.render("create-meal-plan")
 })
-app.get("/add-meal", (req, res) => {
-res.render("add-meal")
+app.get("/mealplans/:id/add-meal", async(req, res) => {
+  const mealplanId = req.params.id
+  //fetching meal plan info
+  const[plans] = await db.query("SELECT * FROM meal_plans WHERE id = ?", [mealplanId])
+  const mealplan = plans[0]
+res.render("add-meal",{ mealplan})
 
 });
 
 app.post("/register-user",(req,res) =>{
     const {firstname, lastname, username, email, password, role} =req.body;
-     const hashedPassword =  bcrypt.hashSync(password, 10);
+     const hashedPassword =  bcrypt.hash(password, 10);
      console.log(hashedPassword);
      const defaultRole = "user"
      
@@ -169,7 +183,7 @@ app.post("/register-user",(req,res) =>{
 })
 app.post("/register-instructor",(req, res)=>{
     const{firstname, lastname, username, email, password, role, client_charges, license} =req.body;
-     const hashedPassword =  bcrypt.hashSync(password, 10);
+     const hashedPassword =  bcrypt.hash(password, 10);
      console.log(hashedPassword);
      const dRole = "fit_instructor"
 
@@ -183,7 +197,7 @@ app.post("/register-instructor",(req, res)=>{
 })
 app.post("/register-nutritionist",(req,res)=>{
     const{firstname, lastname, username, email, password, role, client_charges, license} = req.body;
-    const hashedPassword = bcrypt.hashSync(password,10)
+    const hashedPassword = bcrypt.hash(password,10)
     const derole = "nutritionist";
 
     db.query(`INSERT INTO users(firstname, lastname, username, email, password, role, client_charges,license) VALUES(?,?,?,?,?,?,?,?)`,
@@ -193,64 +207,68 @@ app.post("/register-nutritionist",(req,res)=>{
            /*  res.json({message:'User register successifully,'}) */
         })
 })
-app.post("/login", (req, res)=>{
+app.post("/login", async(req, res)=>{
     const {email, password} = req.body;
     if(!email || !password){
-        return res.status(400).json({message: "Please enter both username and password"})
+        return res.status(400).json({message: "Please enter both email and password"})
     }
-    db.query("SELECT * FROM users WHERE email = ?", [email], (err, result)=>{
-        if (err){
-            console.log("DB Error:", err);
-            return res.status(500).json({message: "Internal Server Error"})
-            
-        }
-        console.log("Login query result:", result);
-        if(result.length === 0){
-            return res.status(401).json({message: "Invalid email or password"})
-         }
-         const user=result[0]
-         const match = bcrypt.compareSync(password, user.password)
-         if(!match){
-            return res.status(401).json({message: "Invalid password"})
-         }
+    try{
+      //getting user by email
+      const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email])
+      if (rows === 0){
+        return res.status(401).json({message : "Invalid email or password"})
 
-         req.session.user={
-            id:user.id,
-            role: user.role,
-            username:user.username
-         }
-         console.log(req.session.user.role);
-         return redirection(req, res)
-         
-         
-        })
- })
-app.post("/create-meal-plan", (req, res)=>{
-  //authorisation
-  if(req.session.user.role !== "nutritionist"){
-    return res.status(403).send("Only nutritionists can create meal plans");
-  }
+      }
+      const user =rows[0]
+     //compare hashed password
+     const match = await bcrypt.compare(password, user.password)
+     if(!match){
+       return res.status(401).json({ message: "Invalid password" });
+     }
+     //save session
+     req.session.user = {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+     }
+     console.log("Logged in user:", req.session.user)
+     //redirection
+     return redirection(req,res)
+    }catch(err){
+      console.log("Login error:",err);
+      return res.status(500).json({ message: "Internal Server Error"})
+    }
+  })     
+
+app.post("/create-meal-plan",requireRole, async(req, res)=>{  
 //deconstruction
 const {title, description,duration_days} =req.body
 const nutritionist_id = req.session.user.id;
 //database querying
-db.query("INSERT INTO meal_plans (nutritionist_id,title,description,duration_days) VALUE (?,?,?,?)",
-  [nutritionist_id, title, description, duration_days],
-  (err, result) => {
-            if (err) throw err;
-            res.json({ message: "Meal plan created", mealPlanId: result.insertId });
-        }
- )
+try{
+const [inserting] = await db.query("INSERT INTO meal_plans (nutritionist_id,title,description,duration_days) VALUE (?,?,?,?)",
+  [nutritionist_id, title, description, duration_days]
+)
+const newPlanId =inserting.insertId // the new meal plan id
+ res.redirect(`/mealplans/${newPlanId}/add-meal`);
+}catch (err) {
+  console.log("Login error;",err)
+  return res.status(500).json({message: "SERVER ERROR; COUNDN'T LOGIN"})
+}
 })
-app.post("/add-meal", (req,res)=>{
-  const {meal_plan_id, day_number, meal_type, description} =req.body
-  db.query("INSERT INTO meals (meal_plan_id, day_number, meal_type, description) VALUE (?,?,?,?)",
-    [meal_plan_id, day_number, meal_type, description],
-    (err, result)=>{
-      if (err) throw err;
-      res.json({message:"Meal Added to",mealId: result.insertId  })
-    }
+app.post("/mealplans/:id/add-meal", async (req,res)=>{
+  const mealplanId =req.params.id //getting mealplan Id from url
+  const { day_number, meal_type, description} =req.body
+  try{
+  const [inserting] = await db.query("INSERT INTO meals (meal_plan_id, day_number, meal_type, description) VALUE (?,?,?,?)",
+    [mealplanId, day_number, meal_type, description] 
   )
+  //redirect back to add more meals
+  res.redirect(`/mealplans/${mealplanId}/add-meal`)
+}catch (err){ 
+      console.error("Error adding meal:", err) 
+      res.json({message:"Error Adding meal plan" })
+      }
 })
 app.get("/logout", (req, res) => {
   req.session.destroy((err) => {
