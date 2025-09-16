@@ -34,7 +34,7 @@ function requireRole(req,res,next){
  const path =req.path;
  const role =req.session.user?.role; 
  const publicRoutes =["/", "/login","/register","/logout"];
- const nutritionistRoutes =["/nutritionist-dash", "/add-meal", "/create-meal-plan", ...publicRoutes]
+ const nutritionistRoutes =["/nutritionist-dash", "/add-meal", "/create-meal-plan","/nutritionist-plan-meals", ...publicRoutes]
  const instructorRoutes =["/instructor-dash", ...publicRoutes]
  const adminRoutes =["/admin-dash", ...publicRoutes,...nutritionistRoutes,...instructorRoutes]
   
@@ -165,6 +165,45 @@ app.get("/mealplans/:id/add-meal", async(req, res) => {
 res.render("add-meal",{ mealplan})
 
 });
+app.get("/nutritionist-plan-meals", requireLogin, requireRole, async(req,res)=>{
+  try{
+    const nutritionistId = req.session.user.id;
+    const [mealPlans] = await db.query("SELECT * FROM meal_plans WHERE nutritionist_id = ?", [nutritionistId]);
+     if(mealPlans.length === 0){
+      return res.render("nutritionist-plan-meals.ejs",{
+          user: req.session.user,
+          mealPlans: [],
+          mealsByPlan: {}
+      })
+     }
+ const planIds = mealPlans.map(p=>p.id)
+
+ const [meals] = await db.query(`SELECT * FROM meals WHERE meal_plan_id IN(?) ORDER BY meal_plan_id, day_number, FIELD(meal_type,'breakfast','lunch','dinner','snack')`,[planIds]);
+ const mealsByPlan ={}
+ meals.forEach(meal => {
+  if (!mealsByPlan[meal.meal_plan_id]){
+    mealsByPlan[meal.meal_plan_id] = []
+  }
+  mealsByPlan[meal.meal_plan_id].push(meal)
+ });
+   console.log("Meal Plans:", mealPlans);
+    console.log("Meals:", meals);
+    console.log("Meals Grouped by Plan:", mealsByPlan);
+
+  res.render("nutritionist-plan-meals.ejs", {
+  user: req.session.user,
+  mealPlans,
+  mealsByPlan
+});
+ 
+
+
+
+  }catch (err){
+    console.error("Error fetching meal plans")
+    res.status(500).send("Internal Server Error")
+  }
+})
 
 app.post("/register-user",(req,res) =>{
     const {firstname, lastname, username, email, password, role} =req.body;

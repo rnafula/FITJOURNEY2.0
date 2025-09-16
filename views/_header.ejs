@@ -16,7 +16,7 @@
     <a href="/nutritionist-dash">Dashboard</a>
     <a href="/create-meal-plan">Create Plans</a>
      <a href="/add-meal">Add Meal</a>
-    <a href="#myplans">Plans</a>
+    <a href="/nutritionist-plan-meals">Plans</a>
     <a href="/regular/profile"><%= user.username%></a>
     <a href="/logout">Logout</a>
 
@@ -55,7 +55,7 @@
     display: block;
     text-decoration: none;
     color: #c9d9e1;
-    font-size: 18px;
+    font-size: 15px;
     align-items: center;
     padding: 5px;
     border-radius: 5px;
@@ -69,7 +69,6 @@
     position: sticky;
     top: 0;
     left: 0;
-    padding: 10px;
     z-index: 1000;
     display: flex;
     justify-content: space-between;
@@ -86,6 +85,7 @@
   }
   .navbar {
     display: flex;
+    gap:10px;
     
   }
   .hamburger {
