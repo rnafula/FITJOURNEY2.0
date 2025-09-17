@@ -1,14 +1,49 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
+  <meta charset="UTF-8">
+  <title>User Dashboard - FitJourney</title>
+  <link rel="stylesheet" href="user.css">
 </head>
 <body>
-      <%- include("_header.ejs")%> <br />
-    <h1>User Dashboard</h1>
-    <h2>Hi <%= user.username %></h2>
-    
+  <div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <h2>FitJourney</h2>
+      <nav>
+        <a href="/user-dash">Dashboard</a>
+        <a href="/professionals">Professionals</a>
+        <a href="/requests">My Requests</a>
+        <a href="/payments">Payments</a>
+        <a href="/plans">My Plans</a>
+        <a href="/progress">Progress</a>
+        <a href="/profile"><%= user.username %></a>
+        <a href="/logout">Logout</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+      <header>
+        <h1>Welcome, <%= user.username %> 👋</h1>
+      </header>
+
+      <section class="cards">
+        <div class="card">
+          <h3>My Habit</h3>
+          <p><%= user.habit || "No habit set" %></p>
+        </div>
+        <div class="card">
+          <h3>Requests</h3>
+          <p><%= requestsCount || "None"%> active</p>
+        </div>
+        <div class="card">
+          <h3>Payments</h3>
+          <p>Last: <%= lastPaymentStatus || "None" %></p>
+        </div>
+      </section>
+    </main>
+  </div>
 </body>
 </html>

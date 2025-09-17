@@ -110,9 +110,48 @@ app.get("/register-nutritionist", (req, res)=>{
 app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "/login.html"));
 });
-app.get("/user-dash", requireLogin,requireRole, (req, res)=>{
-    res.render("user-dash.ejs")
+app.get("/user-dash", requireLogin,requireRole, async(req, res)=>{
+try{
+  const user = req.session.user;
+  const [rows] = await db.query("SELECT COUNT(*) AS count FROM requests WHERE user_id = ?", [user.id])
+  const requestsCount = rows[0].count;
+  const [payments] = await db.query("SELECT status FROM payments WHERE request_id IN (SELECT id FROM requests WHERE user_id = ?) ORDER BY created_at DESC",
+    [user.id]
+  ) 
+  const lastPaymentStatus = payments.length > 0 ? payments[0].status : null;
+  const habit = user.habit || "No habit set";
+    res.render("user-dash", {
+      user,
+      requestsCount,
+      lastPaymentStatus,
+      habit
+    });
+}catch(err){
+  console.log(err);
+  res.status(500).send("Server error")
+  
+}
+   
 }) 
+
+//professionals page
+// Professionals page
+app.get("/professionals", requireLogin, async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      "SELECT id, firstname, lastname, username, role, client_charges, license FROM users WHERE role IN ('nutritionist','fit_instructor') AND is_approved = 1"
+    );
+
+    res.render("professionals", {
+      user: req.session.user,
+      professionals: rows
+    });
+  } catch (err) {
+    console.error("Error fetching professionals:", err);
+    res.status(500).send("Server error");
+  }
+});
+
 app.get("/nutritionist-dash", requireLogin, requireRole, async(req, res) => {
   console.log("User session:",req.session.user);
   
@@ -139,6 +178,7 @@ app.get("/nutritionist-dash", requireLogin, requireRole, async(req, res) => {
     mealplan,
     meals,
     user_meal_plans,
+    activePage: "dash"
   })
   
 
@@ -155,14 +195,14 @@ app.get("/admin-dash",requireLogin,requireRole, (req, res)=>{
 })
 /* creating meal plan and adding meals */
 app.get("/create-meal-plan", (req, res)=>{
-res.render("create-meal-plan")
+res.render("create-meal-plan",{ activePage: "dash"})
 })
 app.get("/mealplans/:id/add-meal", async(req, res) => {
   const mealplanId = req.params.id
   //fetching meal plan info
   const[plans] = await db.query("SELECT * FROM meal_plans WHERE id = ?", [mealplanId])
   const mealplan = plans[0]
-res.render("add-meal",{ mealplan})
+res.render("add-meal",{ mealplan,  activePage: "create"})
 
 });
 app.get("/nutritionist-plan-meals", requireLogin, requireRole, async(req,res)=>{
@@ -173,7 +213,8 @@ app.get("/nutritionist-plan-meals", requireLogin, requireRole, async(req,res)=>{
       return res.render("nutritionist-plan-meals.ejs",{
           user: req.session.user,
           mealPlans: [],
-          mealsByPlan: {}
+          mealsByPlan: {},
+           activePage: "meal"
       })
      }
  const planIds = mealPlans.map(p=>p.id)
@@ -193,7 +234,8 @@ app.get("/nutritionist-plan-meals", requireLogin, requireRole, async(req,res)=>{
   res.render("nutritionist-plan-meals.ejs", {
   user: req.session.user,
   mealPlans,
-  mealsByPlan
+  mealsByPlan,
+   activePage: "plans"
 });
  
 
