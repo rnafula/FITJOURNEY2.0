@@ -73,8 +73,8 @@
                  <form action="/requests/<%= req.id %>/reject" method="POST">
                     <button type="submit" class="reject-btn">Reject</button>
                   </form>
-                  <form action="/requests/<%= req.id %>/reject" method="POST">
-                    <button type="submit" class="reject-btn">Reject</button>
+                  <form action="/requests/<%= req.id %>/approve" method="POST">
+                    <button type="submit" class="approve-btn">Approve</button>
                   </form>
                 <% } else if(req.status === "paid") { %>
                   <form action="/requests/<%= req.id %>/reject" method="POST">
