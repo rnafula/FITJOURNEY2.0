@@ -97,24 +97,25 @@ function redirection( req, res){
 
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "/index.html"));
-    
-    
+    res.render("index")  
 });
+
 app.get("/register-user", (req, res)=>{
-res.sendFile(path.join(__dirname, "public", "/register-user.html"));
+res.render( "register-user");
 })
 app.get("/register-instructor", (req, res) => {
-res.sendFile(path.join(__dirname, "public", "/register-instructor.html"));
-
+res.render( "register-instructor")
 });
+
+
 app.get("/register-nutritionist", (req, res)=>{
-    res.sendFile(path.join(__dirname, "public", "/register-nutritionist.html"));
+    res.render("register-nutritionist");
 
 })
 app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "/login.html"));
+  res.render("login")
 });
+
 app.get("/user-dash", requireLogin,requireRole, async(req, res)=>{
 try{
   const user = req.session.user;
@@ -130,7 +131,7 @@ try{
  const [payments] = await db.query("SELECT COUNT(*) AS count FROM payments WHERE request_id IN (SELECT id FROM requests WHERE user_id = ?) ",
     [user.id]
   ) 
-    res.render("user-dash", {
+    res.render("user/user-dash", {
       user,
       counts,
       paymentsCount: payments[0].count
@@ -152,7 +153,7 @@ app.get("/professionals", requireLogin, async (req, res) => {
       "SELECT id, firstname, lastname, username, role, client_charges, license FROM users WHERE role IN ('nutritionist','fit_instructor') AND is_approved = 1"
     );
 
-    res.render("professionals", {
+    res.render("user/professionals", {
       user: req.session.user,
       professionals: rows
     });
@@ -186,7 +187,7 @@ app.get("/nutritionist-dash", requireLogin, requireRole, async(req, res) => {
 
   console.log("MEALPLANS :", mealplan )
 
-  res.render("nutritionist-dash",{
+  res.render("nutri/nutritionist-dash",{
     mealplan,
     meals,
     user_meal_plans,
@@ -212,7 +213,7 @@ app.get("/clients", requireLogin, async (req, res) => {
     );
     console.log("DB Working fine: ",clients)
 
-    res.render("clients", {
+    res.render("nutri/clients", {
       user,
       clients,
        activePage: "clients"
@@ -291,21 +292,21 @@ app.post("/requests/:id/reject", requireLogin, requireRole, async (req, res) => 
 
 
 app.get("/instructor-dash", requireLogin,requireRole, (req, res)=>{
-    res.render("instructor-dash.ejs")
+    res.render("fit/instructor-dash.ejs")
 })
 app.get("/admin-dash",requireLogin,requireRole, (req, res)=>{
-    res.render("admin-dash.ejs")
+    res.render("admin/admin-dash")
 })
 /* creating meal plan and adding meals */
 app.get("/create-meal-plan",requireRole, (req, res)=>{
-res.render("create-meal-plan",{ activePage: "create"})
+res.render("nutri/create-meal-plan",{ activePage: "create"})
 })
 app.get("/mealplans/:id/add-meal", async(req, res) => {
   const mealplanId = req.params.id
   //fetching meal plan info
   const[plans] = await db.query("SELECT * FROM meal_plans WHERE id = ?", [mealplanId])
   const mealplan = plans[0]
-res.render("add-meal",{ mealplan,  activePage: "meal"})
+res.render("nutri/add-meal",{ mealplan,  activePage: "meal"})
 
 });
 app.get("/nutritionist-plan-meals", requireLogin, requireRole, async(req,res)=>{
@@ -313,7 +314,7 @@ app.get("/nutritionist-plan-meals", requireLogin, requireRole, async(req,res)=>{
     const nutritionistId = req.session.user.id;
     const [mealPlans] = await db.query("SELECT * FROM meal_plans WHERE nutritionist_id = ?", [nutritionistId]);
      if(mealPlans.length === 0){
-      return res.render("nutritionist-plan-meals.ejs",{
+      return res.render("nutri/nutritionist-plan-meals",{
           user: req.session.user,
           mealPlans: [],
           mealsByPlan: {},
@@ -334,7 +335,7 @@ app.get("/nutritionist-plan-meals", requireLogin, requireRole, async(req,res)=>{
     console.log("Meals:", meals);
     console.log("Meals Grouped by Plan:", mealsByPlan);
 
-  res.render("nutritionist-plan-meals.ejs", {
+  res.render("nutri/nutritionist-plan-meals", {
   user: req.session.user,
   mealPlans,
   mealsByPlan,
@@ -368,7 +369,7 @@ app.get("/requests", requireLogin,requireRole, async (req, res) => {
       [user.id]
     );
 
-    res.render("requests", {
+    res.render("user/requests", {
       user,
       requests,
       query: req.query
@@ -433,7 +434,7 @@ app.get("/payments", requireLogin, requireRole, async (req, res) => {
     });
 
     // Render page with payments and counts
-    res.render("payments", { user, payments, paymentCounts });
+    res.render("user/payments", { user, payments, paymentCounts });
   } catch (err) {
     console.error("Error fetching payments:", err);
     res.status(500).send("Server error fetching payments");
