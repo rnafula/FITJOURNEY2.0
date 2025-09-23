@@ -7,8 +7,17 @@
     <% if (user && user.role === 'nutritionist'){ %>
       <a href="/nutritionist-dash" class="<%= activePage === 'dash' ? 'active' : '' %>">Dashboard</a>
       <a href="/create-meal-plan" class="<%= activePage === 'create' ? 'active' : '' %>">Create Plans</a>
-      <a href="/add-meal" class="<%= activePage === 'meal' ? 'active' : '' %>">Add Meal</a>
+      <a href="/clients" class="<%= activePage === 'clients' ? 'active' : '' %>">Clients</a>
       <a href="/nutritionist-plan-meals" class="<%= activePage === 'plans' ? 'active' : '' %>">Plans</a>
+      <a href="/regular/profile"><%= user.username %></a>
+      <a href="/logout">Logout</a>
+    <% } %>
+
+     <% if (user && user.role === 'fit_instructor'){ %>
+      <a href="/nutritionist-dash" class="">Dashboard</a>
+      <a href="/create-workout-plan" class="">Create Workout </a>
+      <a href="/clients" class="">Clients</a>
+      <a href="/instructor-plan-workout" class="">Plans</a>
       <a href="/regular/profile"><%= user.username %></a>
       <a href="/logout">Logout</a>
     <% } %>

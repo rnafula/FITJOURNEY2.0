@@ -5,6 +5,8 @@
   <meta charset="UTF-8">
   <title>User Dashboard - FitJourney</title>
   <link rel="stylesheet" href="user.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
   <div class="dashboard">
@@ -12,7 +14,7 @@
     <aside class="sidebar">
       <h2>FitJourney</h2>
       <nav>
-        <a href="/user-dash">Dashboard</a>
+        <a href="/user-dash" class="active">Dashboard</a>
         <a href="/professionals">Professionals</a>
         <a href="/requests">My Requests</a>
         <a href="/payments">Payments</a>
@@ -35,15 +37,52 @@
           <p><%= user.habit || "No habit set" %></p>
         </div>
         <div class="card">
+          
           <h3>Requests</h3>
-          <p><%= requestsCount || "None"%> active</p>
+          <canvas id="paymentsChart" width="300" height="100"></canvas>
+          </a>
         </div>
         <div class="card">
           <h3>Payments</h3>
-          <p>Last: <%= lastPaymentStatus || "None" %></p>
+          <p>Total: <a href="/payments"><%= paymentsCount || "None" %></p>
+          </a>
         </div>
       </section>
     </main>
   </div>
+
+<script>
+  const ctx = document.getElementById('paymentsChart').getContext('2d');
+  const paymentsChart = new Chart(ctx, {
+      type: 'doughnut', // or 'bar', 'pie', etc.
+      data: {
+          labels: ['Pending', 'Approved', 'Paid'],
+          datasets: [{
+              label: 'Payments by Status',
+              data: [<%= counts.pending %>, <%= counts.approved %>, <%= counts.paid %>],
+              backgroundColor: [
+                  'yellow', // pending
+                  'green', // completed
+                  'red'  // failed
+              ],
+              borderColor: [
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                  'rgba(255, 99, 132, 1)'
+              ],
+              borderWidth: 1
+          }]
+      },
+      options: {
+          responsive: true,
+          plugins: {
+              legend: {
+                  position: 'bottom'
+              }
+          }
+      }
+  });
+</script>
+
 </body>
 </html>

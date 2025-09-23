@@ -33,10 +33,12 @@ function login(res){
 function requireRole(req,res,next){
  const path =req.path;
  const role =req.session.user?.role; 
- const publicRoutes =["/", "/login","/register","/logout"];
- const nutritionistRoutes =["/nutritionist-dash", "/add-meal", "/create-meal-plan","/nutritionist-plan-meals", ...publicRoutes]
- const instructorRoutes =["/instructor-dash", ...publicRoutes]
- const adminRoutes =["/admin-dash", ...publicRoutes,...nutritionistRoutes,...instructorRoutes]
+
+ const publicRoutes =["/", "/login","/register-user", "/register-instructor", "/register-nutritionist","/logout"];
+ const userRoutes =["/professionals","/requests","/user-dash","/pay","/payments"]
+ const nutritionistRoutes =["/nutritionist-dash", "/add-meal", "/create-meal-plan","/nutritionist-plan-meals","/requests"]
+ const instructorRoutes =["/instructor-dash"]
+ const adminRoutes =["/admin-dash",...nutritionistRoutes,...instructorRoutes]
   
  if (publicRoutes.includes(path)){
     return next()
@@ -44,18 +46,20 @@ function requireRole(req,res,next){
  if(!req.session.user){
             return res.redirect("/login")
     }
+// checking path for prefixes
+const matches = (prefixes) => prefixes.some(p => path === p || path.startsWith (p + "/"))
 
- if(role === "nutritionist" && ![...nutritionistRoutes,...publicRoutes].includes(path)){
-    return res.status(403).send("Access denied: Nutrionist only")
+ if(role === "nutritionist" && !matches([...nutritionistRoutes,...publicRoutes])){
+    return res.status(403).send("Access denied")
  }
- if(role === "fit_instructor" && ![...instructorRoutes,...publicRoutes].includes(path)){
-    return res.status(403).send("Access denied: Instructor only")
+ if(role === "fit_instructor" && !matches([...instructorRoutes,...publicRoutes])){
+    return res.status(403).send("Access denied")
  }
- if(role === "admin" && ![...adminRoutes,...publicRoutes].includes(path)){
-    return res.status(403).send("Access denied: Admin only")
+ if(role === "admin" && !matches([...adminRoutes,...publicRoutes])){
+    return res.status(403).send("Access denied")
  }
- if (role === "user" && ![...publicRoutes, "/user-dash"].includes(path)) {
-        return res.status(403).send("Access denied: User only");
+ if (role === "user" && !matches([...userRoutes,...publicRoutes])) {
+        return res.status(403).send("Access denied");
     }
   next()
             
@@ -91,6 +95,7 @@ function redirection( req, res){
     }
 
 
+
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "/index.html"));
     
@@ -113,18 +118,23 @@ app.get("/login", (req, res) => {
 app.get("/user-dash", requireLogin,requireRole, async(req, res)=>{
 try{
   const user = req.session.user;
-  const [rows] = await db.query("SELECT COUNT(*) AS count FROM requests WHERE user_id = ?", [user.id])
-  const requestsCount = rows[0].count;
-  const [payments] = await db.query("SELECT status FROM payments WHERE request_id IN (SELECT id FROM requests WHERE user_id = ?) ORDER BY created_at DESC",
+  const [requestCounts] = await db.query(`SELECT status, COUNT(*) AS count FROM requests WHERE user_id = ? GROUP BY status`, [user.id])
+  
+
+  let counts ={pending: 0, approved: 0, paid: 0};
+
+  requestCounts.forEach(r => {
+  counts[r.status] = r.count;
+});
+  
+ const [payments] = await db.query("SELECT COUNT(*) AS count FROM payments WHERE request_id IN (SELECT id FROM requests WHERE user_id = ?) ",
     [user.id]
   ) 
-  const lastPaymentStatus = payments.length > 0 ? payments[0].status : null;
-  const habit = user.habit || "No habit set";
     res.render("user-dash", {
       user,
-      requestsCount,
-      lastPaymentStatus,
-      habit
+      counts,
+      paymentsCount: payments[0].count
+      
     });
 }catch(err){
   console.log(err);
@@ -173,12 +183,15 @@ app.get("/nutritionist-dash", requireLogin, requireRole, async(req, res) => {
   
 
   )
+
   console.log("MEALPLANS :", mealplan )
+
   res.render("nutritionist-dash",{
     mealplan,
     meals,
     user_meal_plans,
     activePage: "dash"
+    
   })
   
 
@@ -187,6 +200,96 @@ app.get("/nutritionist-dash", requireLogin, requireRole, async(req, res) => {
   res.status(500).send("Error loading Dashboard")
 }
 })
+app.get("/clients", requireLogin, async (req, res) => {
+  try {
+    const user = req.session.user
+    const [clients] = await db.query(
+      `SELECT r.*, u.username
+       FROM requests r 
+       JOIN users u ON r.user_id = u.id
+       WHERE r.professional_id =?
+       ORDER BY r.created_at DESC `, [user.id]
+    );
+    console.log("DB Working fine: ",clients)
+
+    res.render("clients", {
+      user,
+      clients,
+       activePage: "clients"
+    });
+  } catch (err) {
+    console.error("Error fetching clients:", err);
+    res.status(500).send("Server error loading clients");
+  }
+});
+app.post("/requests/:id/approve", requireLogin, requireRole, async (req, res) => {
+  try {
+    const user = req.session.user;
+    const requestId = req.params.id;
+
+    // Only allow the professional who owns this request to approve
+    const [requests] = await db.query(
+      "SELECT * FROM requests WHERE id = ? AND professional_id = ?",
+      [requestId, user.id]
+    );
+
+    if (requests.length === 0) {
+      return res.status(403).send("Unauthorized or request not found");
+    }
+
+    const request = requests[0];
+
+    // Only approve if still pending
+    if (request.status !== "pending") {
+      return res.redirect("/clients?status=error&message=" + encodeURIComponent("Request already handled."));
+    }
+
+    await db.query(
+      "UPDATE requests SET status = 'approved' WHERE id = ?",
+      [requestId]
+    );
+
+    console.log(`✅ Request ${requestId} approved by professional ${user.id}`);
+    res.redirect("/clients?status=success&message=" + encodeURIComponent("Request approved!"));
+  } catch (err) {
+    console.error("Error approving request:", err);
+    res.status(500).send("Server error approving request");
+  }
+});
+app.post("/requests/:id/reject", requireLogin, requireRole, async (req, res) => {
+  try {
+    const user = req.session.user;
+    const requestId = req.params.id;
+
+    const [requests] = await db.query(
+      "SELECT * FROM requests WHERE id = ? AND professional_id = ?",
+      [requestId, user.id]
+    );
+
+    if (requests.length === 0) {
+      return res.status(403).send("Unauthorized or request not found");
+    }
+
+    const request = requests[0];
+
+    if (request.status !== "pending") {
+      return res.redirect("/clients?status=error&message=" + encodeURIComponent("Request already handled."));
+    }
+
+    await db.query(
+      "UPDATE requests SET status = 'rejected' WHERE id = ?",
+      [requestId]
+    );
+
+    console.log(`❌ Request ${requestId} rejected by professional ${user.id}`);
+    res.redirect("/clients?status=success&message=" + encodeURIComponent("Request rejected!"));
+  } catch (err) {
+    console.error("Error rejecting request:", err);
+    res.status(500).send("Server error rejecting request");
+  }
+});
+
+
 app.get("/instructor-dash", requireLogin,requireRole, (req, res)=>{
     res.render("instructor-dash.ejs")
 })
@@ -194,15 +297,15 @@ app.get("/admin-dash",requireLogin,requireRole, (req, res)=>{
     res.render("admin-dash.ejs")
 })
 /* creating meal plan and adding meals */
-app.get("/create-meal-plan", (req, res)=>{
-res.render("create-meal-plan",{ activePage: "dash"})
+app.get("/create-meal-plan",requireRole, (req, res)=>{
+res.render("create-meal-plan",{ activePage: "create"})
 })
 app.get("/mealplans/:id/add-meal", async(req, res) => {
   const mealplanId = req.params.id
   //fetching meal plan info
   const[plans] = await db.query("SELECT * FROM meal_plans WHERE id = ?", [mealplanId])
   const mealplan = plans[0]
-res.render("add-meal",{ mealplan,  activePage: "create"})
+res.render("add-meal",{ mealplan,  activePage: "meal"})
 
 });
 app.get("/nutritionist-plan-meals", requireLogin, requireRole, async(req,res)=>{
@@ -214,7 +317,7 @@ app.get("/nutritionist-plan-meals", requireLogin, requireRole, async(req,res)=>{
           user: req.session.user,
           mealPlans: [],
           mealsByPlan: {},
-           activePage: "meal"
+           activePage: "plans"
       })
      }
  const planIds = mealPlans.map(p=>p.id)
@@ -247,46 +350,147 @@ app.get("/nutritionist-plan-meals", requireLogin, requireRole, async(req,res)=>{
   }
 })
 
-app.post("/register-user",(req,res) =>{
+
+app.get("/requests", requireLogin,requireRole, async (req, res) => {
+  try {
+    const user = req.session.user;
+
+    // fetch all requests for this user
+    const [requests] = await db.query(
+      `SELECT r.*, 
+              u.username AS professional_name, 
+              u.role AS professional_role,
+              u.client_charges AS professional_charges
+       FROM requests r
+       JOIN users u ON r.professional_id = u.id
+       WHERE r.user_id = ?
+       ORDER BY r.created_at DESC`,
+      [user.id]
+    );
+
+    res.render("requests", {
+      user,
+      requests,
+      query: req.query
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
+});
+/* app.get("/payments",requireLogin,requireRole, async(req, res)=>{
+  try {
+    const user = req.session.user;
+
+    // fetch all payments linked to this user’s requests
+    const [payments] = await db.query(
+      `SELECT p.id, p.amount, p.status, p.created_at, 
+              r.id AS request_id, 
+              u.username AS professional_name, 
+              u.role AS professional_role
+       FROM payments p
+       JOIN requests r ON p.request_id = r.id
+       JOIN users u ON r.professional_id = u.id
+       WHERE r.user_id = ?
+       ORDER BY p.created_at DESC`,
+      [user.id]
+    );
+
+    res.render("payments", { user, payments });
+  } catch (err) {
+    console.error("Error fetching payments:", err);
+    res.status(500).send("Server error fetching payments");
+  }
+}) */
+app.get("/payments", requireLogin, requireRole, async (req, res) => {
+  try {
+    const user = req.session.user;
+
+    // fetch all payments linked to this user’s requests
+    const [payments] = await db.query(
+      `SELECT p.id, p.amount, p.status, p.created_at, 
+              r.id AS request_id, 
+              u.username AS professional_name, 
+              u.role AS professional_role
+       FROM payments p
+       JOIN requests r ON p.request_id = r.id
+       JOIN users u ON r.professional_id = u.id
+       WHERE r.user_id = ?
+       ORDER BY p.created_at DESC`,
+      [user.id]
+    );
+
+    // Count payments by status for Chart.js
+    const paymentCounts = payments.reduce((acc, p) => {
+      acc[p.status] = (acc[p.status] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Ensure all statuses exist
+    const statuses = ["pending", "completed", "failed"];
+    statuses.forEach(status => {
+      if (!paymentCounts[status]) paymentCounts[status] = 0;
+    });
+
+    // Render page with payments and counts
+    res.render("payments", { user, payments, paymentCounts });
+  } catch (err) {
+    console.error("Error fetching payments:", err);
+    res.status(500).send("Server error fetching payments");
+  }
+});
+
+app.post("/register-user",async(req,res) =>{
+  try{
     const {firstname, lastname, username, email, password, role} =req.body;
-     const hashedPassword =  bcrypt.hash(password, 10);
+     const hashedPassword = await  bcrypt.hash(password, 10);
      console.log(hashedPassword);
      const defaultRole = "user"
      
-    db.query(`INSERT INTO users(firstname,lastname, username, email, password, role) VALUES(?,?,?,?,?,?)`,
-        [firstname,lastname, username, email, hashedPassword,defaultRole],(err,result)=>{
-        if (err) throw err;
-        login(res)
-       /*  res.json({message:'User register successifully,'}) */
-            
-    })
+    await db.query(`INSERT INTO users(firstname,lastname, username, email, password, role) VALUES(?,?,?,?,?,?)`,
+        [firstname,lastname, username, email, hashedPassword,defaultRole],
+              /*  res.json({message:'User register successifully,'}) */
+            )
+            login(res)
+  } catch (err){
+    console.log("error:",err)
+  }
 
 })
-app.post("/register-instructor",(req, res)=>{
-    const{firstname, lastname, username, email, password, role, client_charges, license} =req.body;
-     const hashedPassword =  bcrypt.hash(password, 10);
+app.post("/register-instructor", async(req, res)=>{
+    try{
+      const{firstname, lastname, username, email, password, role, client_charges, license} =req.body;
+     const hashedPassword =  await bcrypt.hash(password, 10);
      console.log(hashedPassword);
      const dRole = "fit_instructor"
 
-     db.query(`INSERT INTO users(firstname, lastname, username, email, password, role,client_charges,license) VALUES(?,?,?,?,?,?,?,?)`,
-        [firstname, lastname, username, email, hashedPassword, dRole, client_charges,license],(err,result)=>{
-        if (err) throw err;
-        login(res)
+     await db.query(`INSERT INTO users(firstname, lastname, username, email, password, role,client_charges,license) VALUES(?,?,?,?,?,?,?,?)`,
+        [firstname, lastname, username, email, hashedPassword, dRole, client_charges,license]
+     )
+      login(res)
       /*   res.json({message:'User register successifully,'}) */
-     })
+     
+    }catch(err){
+      console.log("error:",err)
+       res.status(500).json({ error: "Registration failed" });
+    }
 
 })
-app.post("/register-nutritionist",(req,res)=>{
+app.post("/register-nutritionist",async(req,res)=>{
+  try{
     const{firstname, lastname, username, email, password, role, client_charges, license} = req.body;
     const hashedPassword = bcrypt.hash(password,10)
     const derole = "nutritionist";
 
-    db.query(`INSERT INTO users(firstname, lastname, username, email, password, role, client_charges,license) VALUES(?,?,?,?,?,?,?,?)`,
-        [firstname, lastname, username, email, hashedPassword, derole, client_charges,license],(err,result)=>{
-            if (err) throw err;
-            login(res)
+    await db.query(`INSERT INTO users(firstname, lastname, username, email, password, role, client_charges,license) VALUES(?,?,?,?,?,?,?,?)`,
+        [firstname, lastname, username, email, hashedPassword, derole, client_charges,license]
+            
            /*  res.json({message:'User register successifully,'}) */
-        })
+        )
+           login(res)
+      } catch(err){
+        console.log("error:",err)
+      }
 })
 app.post("/login", async(req, res)=>{
     const {email, password} = req.body;
@@ -351,6 +555,80 @@ app.post("/mealplans/:id/add-meal", async (req,res)=>{
       res.json({message:"Error Adding meal plan" })
       }
 })
+// user creating a request
+
+
+//mock payment api
+app.post("/pay/:id",requireLogin,requireRole, async(req, res)=>{
+  try{
+    const user =req.session.user;
+    const requestId = req.params.id;
+
+    console.log("💡Payment attempt:", { requestId, user});
+    //verifying request
+    const [requests] = await db.query(" SELECT * FROM requests where id =? AND user_id = ?", [requestId, user.id])
+
+    if (requests.length === 0){
+      return res.status(403).send("Request not found")
+    }
+     const request = requests[0]
+    // checking if approved
+    if (request.status === "paid"){
+      console.log("Request already paid:", requestId )
+      return res.redirect("/requests")
+    }
+    if(request.status !== "approved"){
+      console.log("Request not approved yet",requestId, "status:", request.status)
+      return res.redirect("/requests")
+    }
+    console.log (`Ready to pay for request ${requestId}`)
+
+    const [pros] =await db.query("SELECT client_charges AS charges FROM users WHERE id = ?", [request.professional_id])
+     if (!pros || pros.length === 0) {
+      console.log("Professional not found for request", request.professional_id)
+      return res.redirect("/requests")
+     }
+     const amount = pros[0].charges;
+     if (amount == null){
+      console.log(" Charges not set", request.professional_id)
+      return res.redirect("/requests")
+     }    
+    console.log("Charging amount:", amount, "for request:", requestId);
+
+    await db.query("UPDATE requests SET status = 'paid' WHERE id =?", [requestId])
+      console.log(`Payment successful for request ${request.id}`)
+      console.log("Raw DB valuea:", amount);
+console.log("Type of value:", typeof pros[0].charges);
+
+      await db.query(`INSERT INTO payments(request_id,amount,method,transaction_id,status,created_at) VALUES(?,?,null, null, null, NOW()) `,[requestId, amount, "paid"])
+      console.log("Payment recorded for request:", requestId);
+      return res.send("SUccess!!!")
+  } catch (err){
+    console.log("payment error: ",err)
+    res.status(500).send("Payment failed, refresh and try again")
+  }
+})
+
+// Handle new plan request
+app.post("/requests", requireLogin, requireRole, async (req, res) => {
+  try {
+    const { professional_id, role, goal, notes, plan_type } = req.body;
+    const user_id = req.session.user.id; // assuming you store logged-in user in session
+    
+    console.log("User ID:", user_id);
+    await db.query(
+      "INSERT INTO requests (user_id, professional_id, role, goal, notes, plan_type, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [user_id, professional_id, role, goal, notes, plan_type, "pending"]
+    );
+
+    res.redirect("/requests"); // redirect user to My Requests page
+  } catch (err) {
+    console.error("Error saving request:", err);
+    res.status(500).send("Error saving request");
+  }
+});
+
+
 app.get("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {

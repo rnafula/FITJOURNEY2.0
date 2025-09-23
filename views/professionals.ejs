@@ -39,6 +39,36 @@
     .pro-card button:hover {
       background-color: #02263a;
     }
+    /* pop up */
+    #requestPopup{
+    display:none;
+    position: fixed;
+    top:20%;
+    left:50%;
+    transform: translateX(-50%);
+    background:#fff;
+    padding:20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index:1000;
+    width:300px;
+    }
+    #requestPopup form{
+      display: flex;
+      flex-direction: column;
+      gap:10px;
+    }
+    #overlay{
+      display:none;
+      position:fixed;
+      top:0;
+      left:0;
+      width: 100%;
+      height:100%;
+      background: rgba(0,0,0,0.5);
+      z-index:900;
+    }
+
   </style>
 </head>
 <body>
@@ -73,15 +103,70 @@
             <p>Charges: KES <%= pro.client_charges || "N/A" %></p>
             <p>License: <%= pro.license || "N/A" %></p>
             
-            <form action="/requests" method="POST">
-              <input type="hidden" name="professional_id" value="<%= pro.id %>">
-              <input type="hidden" name="role" value="<%= pro.role %>">
-              <button type="submit">Request Plan</button>
-            </form>
+
+            <button
+            class="request-btn"
+            data-id="<%= pro.id%>"
+            data-role="<%= pro.role %>">
+            Request Plan
+          </button>
           </div>
-        <% }) %>
+          <% }) %>
       </section>
     </main>
   </div>
+  <!-- overlay -->
+   <div id="overlay"></div>
+   <!-- popup -->
+    <div id="requestPopup">
+      <form action="/requests" method="POST">
+          <input type="hidden" name="professional_id" id="popupProfessionalId">
+          <input type="hidden" name="role" id="popupRole">
+
+          <label>Plan Type</label>
+          <select name="plan_type" required>
+            <option value="meal">Meal</option>
+            <option value="workout">Workout</option>
+            <option value="both">Both</option>
+          </select>
+
+          <label for="">Goal</label>
+          <input type="text" name="goal" id="" placeholder="e.g Weight loss" required>
+
+          <label for="">Notes</label>
+          <textarea name="notes" placeholder="Allergies, preferences..."></textarea>
+
+          <button type="submit">Submit Request</button>
+          <button type="button" id="closePopup">Cancel</button>
+      </form>
+    </div>
+    <script>
+       const popup = document.getElementById('requestPopup');
+    const overlay = document.getElementById('overlay');
+    const closePopup = document.getElementById('closePopup');
+    const popupProfessionalId = document.getElementById('popupProfessionalId');
+    const popupRole = document.getElementById('popupRole');
+
+    // Open popup when "Request Plan" clicked
+    document.querySelectorAll('.request-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        popupProfessionalId.value = btn.dataset.id;
+        popupRole.value = btn.dataset.role;
+        popup.style.display = 'block';
+        overlay.style.display = 'block';
+      });
+    });
+
+    // Close popup
+    closePopup.addEventListener('click', () => {
+      popup.style.display = 'none';
+      overlay.style.display = 'none';
+    });
+
+    overlay.addEventListener('click', () => {
+      popup.style.display = 'none';
+      overlay.style.display = 'none';
+    });
+    </script>
 </body>
 </html>

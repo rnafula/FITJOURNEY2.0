@@ -13,15 +13,16 @@ body {
 
 /* === Sidebar === */
 .sidebar {
-  width: 240px;
+  width: 220px;
   background-color: #076396; /* dark blue */
   color: #fff;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 15px;
   position: sticky;
   top: 0;
   height: 100vh;
+  box-shadow: inset;
 }
 
 .sidebar h2 {
@@ -33,19 +34,20 @@ body {
 .sidebar nav {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .sidebar nav a {
   text-decoration: none;
   color: #c9d9e1;
-  padding: 10px;
+  padding: 6px;
   border-radius: 6px;
   transition: all 0.3s ease;
 }
 
 .sidebar nav a:hover,
 .sidebar nav a.active {
+  width: 60%;
   background-color: #6c93db; /* primary blue */
   color: #02263a;
 }

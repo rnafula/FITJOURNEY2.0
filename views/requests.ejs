@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Requests</title>
+  <link rel="stylesheet" href="user.css">
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7fb;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .page-title {
+      text-align: center;
+      color: #02263a;
+      margin-bottom: 1.5rem;
+    }
+
+    .empty {
+      text-align: center;
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    .requests-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .request-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1.2rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease;
+    }
+
+    .request-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .request-card h3 {
+      margin-top: 0;
+      color: #076396;
+    }
+
+    .status {
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      text-transform: capitalize;
+    }
+
+    .status.pending { background: #fff3cd; color: #856404; }
+    .status.approved { background: #d4edda; color: #155724; }
+    .status.paid { background: #cce5ff; color: #004085; }
+    .status.completed { background: #e2e3e5; color: #383d41; }
+    .status.rejected { background: #f8d7da; color: #721c24; }
+
+    .paid {
+      background: #89e98f;
+      color: #05250a;
+      padding: 0.6rem;
+      border-radius: 8px;
+      margin-top: 0.8rem;
+    }
+      .rejection {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 0.6rem;
+      border-radius: 8px;
+      margin-top: 0.8rem;
+    }
+
+    .pay-btn {
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      background-color: #076396;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.2s ease;
+    }
+
+    .pay-btn:hover { background-color: #02263a; }
+
+    /* Modal styles */
+   
+
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover { color: #000; }
+
+  
+    .payment-success {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.payment-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h2>FitJourney</h2>
+      <nav>
+        <a href="/user-dash">Dashboard</a>
+        <a href="/professionals" >Professionals</a>
+        <a href="/requests" class="active">My Requests</a>
+        <a href="/payments">Payments</a>
+        <a href="/plans">My Plans</a>
+        <a href="/progress">Progress</a>
+        <a href="/profile"><%= user.username %></a>
+        <a href="/logout">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="container">
+       <% if (query.status === 'success') { %>
+          <div class="payment-success">
+           ✅ Payment successful!
+          </div>
+      <% } else if(query.status === 'error') { %>
+          <div class="payment-error">
+            ❌ <%= query.message %>
+          </div>
+      <% } %>
+
+  
+      <h1 class="page-title">My Requests</h1>
+
+      <% if (requests.length === 0) { %>
+        <p class="empty">You haven’t made any requests yet.</p>
+      <% } else { %>
+        <div class="requests-grid">
+          <% requests.forEach(request => { %>
+            <div class="request-card">
+              <h3>Request to <%= request.role %> #<%= request.professional_id %></h3>
+              <p><strong>Status:</strong> 
+                <span class="status <%= request.status %>"><%= request.status %></span>
+              </p>
+              <p><strong>Plan Type:</strong> <%= request.plan_type || "Not specified" %></p>
+              <p><strong>Goal:</strong> <%= request.goal || "Not specified" %></p>
+              <p><strong>Notes:</strong> <%= request.notes || "None" %></p>
+
+              <% if (request.status === "rejected") { %>
+                <div class="rejection">
+                  <strong>Rejection Message:</strong> <%= request.rejection_message || "No message provided" %>
+                </div>
+              <% } %>
+
+              <% if (request.status === "approved") { %>
+                <form id="pay-form-<%= request.id %>" action="/pay/<%= request.id %>" method="POST">
+                <button type="submit" class="pay-btn">Pay Now (Ksh <%= request.professional_charges %>)</button>
+                </form>
+
+              <% } %>
+
+              <% if (request.status === "paid") { %>
+                  <div class="paid">
+                  <p> <strong>Payment Successful:</strong> You will be assigned a meal plan soon</p>
+                </div>
+                <button class="pay-btn" disabled>Get Help</button>
+                
+              <% } %>
+              <% if (request.status === "completed") { %>
+                <button class="pay-btn" disabled>View plan</button>
+                
+              <% } %>
+
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </main>
+  </div>
+
+  <!-- Payment Confirmation Modal -->
+ 
+  <!-- Modal Script -->
+ 
+</body>
+</html>

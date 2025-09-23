@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Payments - FitJourney</title>
+  <link rel="stylesheet" href="user.css">
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f4f7fb;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #02263a;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #076396;
+      color: white;
+    }
+    tr:hover {
+      background: #f1f1f1;
+    }
+    .status {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+    .status.paid { background: #d4edda; color: #155724; }
+    .status.pending { background: #fff3cd; color: #856404; }
+    .status.failed { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <aside class="sidebar">
+      <h2>FitJourney</h2>
+      <nav>
+        <a href="/user-dash">Dashboard</a>
+        <a href="/professionals">Professionals</a>
+        <a href="/requests">My Requests</a>
+        <a href="/payments" class="active">Payments</a>
+        <a href="/plans">My Plans</a>
+        <a href="/progress">Progress</a>
+        <a href="/profile"><%= user.username %></a>
+        <a href="/logout">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="container">
+      <h1>My Payments</h1>
+
+      <% if (payments.length === 0) { %>
+        <p>You haven’t made any payments yet.</p>
+      <% } else { %>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Professional</th>
+              <th>Plan</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% payments.forEach(p => { %>
+              <tr>
+                <td><%= p.id %></td>
+                <td><%= p.professional %></td>
+                <td><%= p.plan_type || "N/A" %></td>
+                <td>KES <%= p.amount %></td>
+                <td>
+                  <span class="status <%= p.status %>"><%= p.status %></span>
+                </td>
+                <td><%= new Date(p.created_at).toLocaleString() %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </main>
+  </div>
+</body>
+</html>
