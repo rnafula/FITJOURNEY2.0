@@ -1,0 +1,37 @@
+<header class="app-header">
+  <a href="/" class="logo">
+    <img src="/images/fj_logo.png" alt="FitJourney Logo" />
+  </a>
+
+  <nav class="navbar">
+    <% if (user && user.role === 'nutritionist') { %>
+      <a href="/nutritionist-dash" class="<%= activePage === 'dash' ? 'active' : '' %>">Dashboard</a>
+      <a href="/create-meal-plan" class="<%= activePage === 'create' ? 'active' : '' %>">Create Plans</a>
+      <a href="/clients" class="<%= activePage === 'clients' ? 'active' : '' %>">Clients</a>
+      <a href="/nutritionist-plan-meals" class="<%= activePage === 'plans' ? 'active' : '' %>">Plans</a>
+    <% } else if (user && user.role === 'fit_instructor') { %>
+      <a href="/instructor-dash" class="<%= activePage === 'dash' ? 'active' : '' %>">Dashboard</a>
+      <a href="/create-workout" class="<%= activePage === 'create' ? 'active' : '' %>">Create Workout</a>
+      <a href="/clients" class="<%= activePage === 'clients' ? 'active' : '' %>">Clients</a>
+      <a href="/my-workouts" class="<%= activePage === 'plans' ? 'active' : '' %>">Plans</a>
+    <% } else if (user && user.role === 'admin') { %>
+      <a href="/admin-dash" class="<%= activePage === 'dash' ? 'active' : '' %>">Dashboard</a>
+      <a href="#prof-overview" class="">Professionals</a>
+      <a href="#users" class="">Clients</a>
+      <a href="/payments" class="">Payments</a>
+    <% } else if (user && user.role === 'user') { %>
+      <a href="/regular/profile" class="<%= activePage === 'profile' ? 'active' : '' %>">My Profile</a>
+      <a href="/my-progress" class="<%= activePage === 'progress' ? 'active' : '' %>">My Progress</a>
+      <a href="/my-plans" class="<%= activePage === 'plans' ? 'active' : '' %>">My Plans</a>
+    <% } %>
+
+    <% if (user) { %>
+      <a href="/regular/profile" class="user-link">@<%= user.username %></a>
+      <a href="/logout" class="logout">Logout</a>
+    <% } %>
+  </nav>
+
+  <button class="menu-toggle">
+    <img src="/images/menu.png" alt="Menu" class="menu-icon">
+  </button>
+</header>

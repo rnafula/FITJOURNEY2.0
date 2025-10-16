@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nutritionist Dashboard</title>
   <link rel="stylesheet" href="nutri.css">
+  <!-- <link rel="stylesheet" href="header.css"> -->
   <style>
     :root{
       --accent: #6c93db;
@@ -110,7 +111,7 @@
     </div>
     <div class="clients">
       <p class="small">Total Clients</p>
-      <p class="big">0</p>
+      <p class="big"><%= clients? clients.length : 0 %></p>
     </div>
   </div>
 

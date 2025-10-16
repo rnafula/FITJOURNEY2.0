@@ -1,0 +1,39 @@
+.form-container {
+  max-width: 600px;
+  margin: 30px auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.form-container h2 {
+  margin-bottom: 15px;
+}
+
+.workout-form label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.workout-form input,
+.workout-form textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+ .small 
+ { font-size: 0.95rem; margin: 0; opacity: 0.95; color:white;}
+    .big { font-size: 1.8rem; margin: 6px 0 0 0; font-weight: 700; color:white; }

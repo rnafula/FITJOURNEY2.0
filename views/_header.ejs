@@ -14,17 +14,17 @@
     <% } %>
 
      <% if (user && user.role === 'fit_instructor'){ %>
-      <a href="/nutritionist-dash" class="">Dashboard</a>
-      <a href="/create-workout-plan" class="">Create Workout </a>
+      <a href="/instructor-dash" class="">Dashboard</a>
+      <a href="/create-workout" class="">Create Workout </a>
       <a href="/clients" class="">Clients</a>
-      <a href="/instructor-plan-workout" class="">Plans</a>
+      <a href="/my-workouts" class="">Plans</a>
       <a href="/regular/profile"><%= user.username %></a>
       <a href="/logout">Logout</a>
     <% } %>
       <% if (user && user.role === 'admin'){ %>
       <a href="/nutritionist-dash" class="">Dashboard</a>
-      <a href="/create-workout-plan" class="">View Profs </a>
-      <a href="/clients" class=""> View Clients</a>
+      <a href="#prof-overview" class="">View Profs </a>
+      <a href="#users" class=""> View Clients</a>
       <a href="/instructor-plan-workout" class="">Payments</a>
       <a href="/regular/profile"><%= user.username %></a>
       <a href="/logout">Logout</a>

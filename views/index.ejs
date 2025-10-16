@@ -4,207 +4,56 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>FitJourney 2.0</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-    
-      background: #b8cdf4;
-    }
-    #user{
-      text-decoration: none;
-      border-radius: 7px; 
-      background-color: #b8cdf4;
-      color: #2d3748;
-      padding: 10px;
-      margin-right: 30px;
-    }
-
-    h1 {
-      font-size: 2.5em;
-      margin: 10px auto;
-      color: #2d3748;
-    }
-
-    p {
-      font-size: 1.2em;
-      margin: 30px auto;
-      color: #4a5568;
-    }
-
-    .btn {
-      display: block;
-      width: 50%;
-      margin: 10px auto;
-      padding: 12px;
-      font-size: 1em;
-      background-color: #6c93db;
-      color: #2d3748;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      text-decoration: none;
-    }
-     .btn1 {
-      display: block;
-      width: 50%;
-      margin: 10px auto;
-      padding: 12px;
-      font-size: 1em;
-      background-color:#b8cdf4;
-      color: #2d3748;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      text-decoration: none;
-    }
-    .btn:hover, .btn1:hover {
-      background-color: #38b2ac;
-    }
-
-    .login-link {
-      margin-top: 30px;
-      font-size: 1em;
-      margin-bottom: 10px;
-    }
-
-    .login-link a {
-      color: #2b6cb0;
-      text-decoration: underline;
-      
-    }
-    .header{
-      position: sticky;
-      top:0;
-      display:flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #6c93db;
-      width: 100%;
-      border-radius: 2px;
-      
-    }
-    .hero{
-      width:80%;
-      margin:20px auto;
-    }
-    .intro_text{
-      width: 80%;
-      margin:20px auto;
-      text-align: left;
-      border:0.5px solid #6c93db;
-      border-radius: 5px;
-      padding: 5px;
-      box-shadow: 5px 0 5px 5px 2px #6c93db;
-      background-image:url();
-
-    }
-    .section1{
-      display:flex;
-      flex-wrap: wrap;
-      gap:20px;
-      justify-content: center;
-    }
-    .section1>div{
-      width:20%;
-      height: 80%;
-      border-radius: 9px;
-      background-color: #6c93db;
-       overflow: hidden;
-      
-    }
-    .section1>div>div>img{
-      width:100%;
-      height:80%;
-     
-    }
-    .account_p{
-    height:25%;
-
-    }
-    .account_img{
-      height:100px;
-    }
-    .signup_links{
-      display:block;
-      width:100%;
-      margin:20px auto;
-       z-index: 1200; 
-
-    }
-    
-   /* .overlay {
-      position: relative;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      backdrop-filter: blur(8px); 
-      background: rgba(0, 0, 0, 0.4);  
-      display: none;  
-      justify-content: center;
-      align-items: center;
-       z-index: 1000; 
-    }  */
-     
-  </style>
+  <link rel="stylesheet" href="index.css">
+  
 </head>
 <body>
  
-  <div class="header">
-    <div class="logo"><img width="20%;" src="/images/fj_logo.png" alt=""></div>
-    <button class="tagline" id="user">Get Started</button>
+  <div class="navbar-container">
+    <div class="logo"><img width="80px;" src="/images/fj_logo.png" alt=""></div>
+    <nav class="landing-navbar">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="#register-user">Sign Up</a></li>
+        <li><a href="/contact-us">Contact Us</a></li>
+      </ul>
+    </nav>
   </div>
 
   <div class="hero">
     <h1>Welcome to FitJourney 2.0</h1>
   </div>
-  <div class="intro_text" >
-  <p>
-  Your personal companion for building a healthier lifestyle. Whether your goal is losing weight, staying fit, or developing lasting habits, FitJourney connects you with professional nutritionists and fitness instructors who guide you with personalized meal plans, workout routines, and progress tracking.
-</p>
-
-<p>
-  You’ll also enjoy our free 30-day habit builder with daily reminders, custom plans tailored to your goals, direct support from certified experts, and progress insights to help you celebrate every milestone. With FitJourney, you don’t walk the path to wellness alone — you grow with guidance, accountability, and motivation.
-</p>
-
-  </div>
-   <div class="overlay" id="overlay">
-  <div class="signup_links" id="register">
-    <a href="/register-user" class="btn" id="habit">Register as Habit Seeker</a>
-    <a href="/register-nutritionist" class="btn">Register as Nutritionist</a>
-    <a href="/register-instructor" class="btn">Register as Fitness Instructor</a>
-
-
-  <div class ="btn" class="login-link">
-    Have account? <a href="/login">Login here</a>
-  </div>
-  </div>
-  </div>
-  <section class="section1">
-    <div>
-      <div class="account_img"><img src="/images/nutrition.jpeg" alt="image"></div>
+  <div class="hero" >
+    <section class="section1">
+    <div id="register-user">
+      <a href="/">
+        <div class="account_img"><img src="/images/nutrition.jpeg" alt="image"></div>
+      </a>
       <p class="account_p">Nutritionist Account</p>
-      <a href="/register-nutritionist" class="btn1">Sign Up</a>
+      <a href="/register-nutritionist" class="btn1">Create</a>
     </div>
     <div>
       <div class="account_img"><img src="/images/user2.png" alt="image"></div>
-      <p class="account_p"> User Account</p>
-      <a href="/register-user" class="btn1">Sign Up</a>
+      <p class="account_p"> Regular user Account</p>
+      <a href="/register-user" class="btn1">Create</a>
     </div>
     <div>
       <div class="account_img"><img src="/images/fitness.jpeg" alt="image"></div>
       <p class="account_p">Instructor Account</p>
-      <a href="/register-instructor" class="btn1">Sign Up</a>
+      <a href="/register-instructor" class="btn1">Create</a>
     </div>
-    <div>
-      <div class="account_img"><img src="/images/habit1.jpeg" alt=""></div>
-      <p class="account_p">Habit Tracking App</p>
-      <a href="/register-user" class="btn1">Sign Up</a>
+    </section>
+    <div  class="login-link">
+     <a href="/login" >Login here</a>
+  </div>
     </div>
-  </section>
+   <!--  <footer class="foooter">
+
+    </footer> -->
+   
+   
+  
   <script>
     const login = document.getElementById("user")
     login.addEventListener("click",()=>{

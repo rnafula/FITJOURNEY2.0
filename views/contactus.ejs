@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="contact.css">
+    <style>
+        .google-map{
+            width:100%;
+        }
+    </style>
+</head>
+<body>
+     <div class="navbar-container">
+         
+        <div class="logo"><img width="80px;" src="/images/fj_logo.png" alt=""></div>
+         
+        <nav class="landing-navbar">
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/login">Login</a></li>
+            <li><a href="/#register-user">Sign Up</a></li>
+            <li><a href="/contact-us">Contact Us</a></li>
+         </ul>
+        </nav>
+    </div>
+   <!--    <section class="contact-section">
+    <div class="contact-container">
+      <h1>Contact Us</h1>
+      <p>We’d love to hear from you. Reach out with any questions or feedback!</p>
+
+      <form class="contact-form" action="/send-message" method="POST">
+        <input type="text" name="name" placeholder="Your Name" required />
+        <input type="email" name="email" placeholder="Your Email" required />
+        <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+        <button type="submit" class="glow-btn">Send Message</button>
+      </form>
+    </div>
+  </section> -->
+         <div class="container">
+        <div class="heading">Contact Us</div>
+        <form class="form" action="/contact-us" method="POST">
+        <div class="input-flex">
+            <input type="text" name="name" placeholder="Your Name" class="input" required />
+            <input placeholder="E-mail" id="email" name="email"  type="email" class="input" required/>
+        </div>
+        <textarea name="message" rows="5" placeholder="Your Message"class="input" required></textarea>
+        
+        <input value="Send Message" type="submit" class="login-button" />
+        </form>
+
+    </div>
+    <div class="google-map">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.6530286209495!2d35.27763197189443!3d0.521540599473352!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1781018b02431f27%3A0xe38264b3ebe16e54!2sEldohub!5e0!3m2!1sen!2ske!4v1760615641091!5m2!1sen!2ske" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+    
+</body>
+</html>

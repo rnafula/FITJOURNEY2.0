@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My workout plans</title>
+    <link rel="stylesheet" href="nutri.css">
+    <link rel="stylesheet" href="admin.css">
+   <!--  <link rel="stylesheet" href="header.css"> -->
+</head>
+<body>
+    <%- include('../_header.ejs') %>
+
+<div class="dashboard-container">
+  <h2>My Workout Plans</h2>
+  <p>Hello, <%= username %> 👋</p>
+
+  <% if (plans.length === 0) { %>
+    <p>No workout plans created yet. <a href="/create-workout">Create one now</a> 💪</p>
+  <% } else { %>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Duration (days)</th>
+          <th>Created</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% plans.forEach(plan => { %>
+          <tr>
+            <td><%= plan.title %></td>
+            <td><%= plan.description %></td>
+            <td><%= plan.duration_days %></td>
+            <td><%= new Date(plan.created_at).toLocaleDateString() %></td>
+            <td>
+              <form action="/my-workouts/<%= plan.id %>/delete" method="POST" style="display:inline;">
+                <button type="submit" class="reject-btn" onclick="return confirm('Delete this plan?')">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+
+
+</body>
+</html>

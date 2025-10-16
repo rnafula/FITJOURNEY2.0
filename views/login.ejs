@@ -1,28 +1,50 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Login - FitJourney</title>
+<html>
+    <head>
+         <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="login.css">
-</head>
-<body>
+  <link rel="stylesheet" href="index.css">
+    </head>
+    <body>
+    <div class="navbar-container">
+         
+        <div class="logo"><img width="80px;" src="/images/fj_logo.png" alt=""></div>
+         
+        <nav class="landing-navbar">
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/login">Login</a></li>
+            <li><a href="/#register-user">Sign Up</a></li>
+            <li><a href="/contact-us">Contact Us</a></li>
+         </ul>
+        </nav>
+    </div>
+    <div class="container">
+        <div class="heading">Sign In</div>
+        <form class="form" action="/login" method="POST">
+        <input
+            placeholder="E-mail"
+            id="email"
+            name="email"
+            type="email"
+            class="input"
+            required=""
+        />
+        <input
+            placeholder="Password"
+            id="password"
+            name="password"
+            type="password"
+            class="input"
+            required=""
+        />
+        <span class="forgot-password"><a href="#">Forgot Password ?</a></span>
+        <input value="Sign In" type="submit" class="login-button" />
+        </form>
 
-  <form action="/login" method="POST">
-    <h2>User Login</h2>
-
-    <label for="email">Email Address</label>
-    <input type="email" id="email" name="email" required>
-
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" required>
-
-    <button type="submit">Login</button>
-
-    <!-- Optional: Link to signup page -->
-     <div class="back-link">
-      <a href="/">Don't have an account? Sign up</a>
-    </div> 
-  </form>
-
-</body>
+    </div>
+    </body>
 </html>
+
+

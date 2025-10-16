@@ -5,10 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dash</title>
     <link rel="stylesheet" href="nutri.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="header.css">
 </head>
 <body>
     <%- include("../_header.ejs") %>
-    <h1>Admin Dashboard</h1>
-    <h2>Hi Admin</h2>
+    
+
+<div class="dashboard-container">
+  <h2>Admin Dashboard</h2>
+  <p>Welcome, Admin 👋</p>
+
+  <div class="stats-cards">
+    <div class="card"><h3>Total Users</h3><p><%= totalUsers %></p></div>
+    <div class="card"><h3>Instructors</h3><p><%= totalInstructors %></p></div>
+    <div class="card"><h3>Nutritionists</h3><p><%= totalNutritionists %></p></div>
+    <div class="card"><h3>Total Payments</h3><p>Ksh <%= totalPayments %></p></div>
+  </div>
+
+  <h3 id="prof-overview">Professionals Overview</h3>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Username</th>
+      <th>Role</th>
+      <th>Charges</th>
+      <th>License</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% professionals.forEach(p => { %>
+      <tr>
+        <td><%= p.firstname %> <%= p.lastname %></td>
+        <td><%= p.username %></td>
+        <td><%= p.role === 'fit_instructor' ? 'Instructor' : 'Nutritionist' %></td>
+        <td><%= p.client_charges || 'N/A' %></td>
+        <td><%= p.license || '—' %></td>
+        <td>
+          <% if (p.is_approved) { %>
+            <span style="color: green; font-weight: bold;">Approved ✅</span>
+          <% } else { %>
+            <span style="color: red; font-weight: bold;">Pending ❌</span>
+          <% } %>
+        </td>
+        <td>
+          <% if (!p.is_approved) { %>
+            <form action="/admin/approve/<%= p.id %>" method="POST" style="display:inline;">
+              <button type="submit" class="btn-approve">Approve</button>
+            </form>
+          <% } else { %>
+            <form action="/admin/reject/<%= p.id %>" method="POST" style="display:inline;">
+              <button type="submit" class="btn-reject">Reject</button>
+            </form>
+          <% } %>
+        </td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+
+  <h3 id="users">Recent Users</h3>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Joined</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% recentUsers.forEach(u => { %>
+        <tr>
+          <td><%= u.firstname %> <%= u.lastname %></td>
+          <td><%= u.username %></td>
+          <td><%= u.email %></td>
+          <td><%= new Date(u.created_at).toLocaleDateString() %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+
+
+
+
 </body>
 </html>
