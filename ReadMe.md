@@ -59,5 +59,13 @@ Fitjourney 2.0
     -password
     -client charges
     -practicing licence 
-  UI SCREENSHOTS
+
+
+UI SCREENSHOTS
   ![Dashboard Screenshot](/public/images/Screenshot%202025-11-06%20155119.png)
+  ![Dashboard Screenshot](/public/images/Screenshot%202025-11-06%20155144.png)
+  ![Dashboard Screenshot](/public/images/Screenshot%202025-11-06%20155158.png)
+  ![Dashboard Screenshot](/public/images/Screenshot%202025-11-06%20155318.png)
+  ![Dashboard Screenshot](/public/images/Screenshot%202025-11-06%20155339.png)
+  ![Dashboard Screenshot](/public/images/Screenshot%202025-11-06%20155422.png)
+  ![Dashboard Screenshot](/public/images/Screenshot%202025-11-06%20155626.png)
