@@ -1,148 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Header</title>
-</head>
-<body>
-  
-<header class="hero">
-  <a href="/"><img src="/images/fj_logo.png" alt="" /></a>
-  <img src="/images/close_menu.png" alt="menu_close" class="close" />
+<header class="app-header">
+  <a href="/" class="logo">
+    <img src="/images/fj_logo.png" alt="FitJourney Logo" />
+  </a>
 
   <nav class="navbar">
-    <% if (user && user.role === 'nutritionist'){%>
-    <a href="/nutritionist-dash">Dashboard</a>
-    <a href="/create-meal-plan">Create Plans</a>
-     <a href="/add-meal">Add Meal</a>
-    <a href="/nutritionist-plan-meals">Plans</a>
-    <a href="/regular/profile"><%= user.username%></a>
-    <a href="/logout">Logout</a>
+    <% if (user && user.role === 'nutritionist') { %>
+      <a href="/nutritionist-dash" class="<%= activePage === 'dash' ? 'active' : '' %>">Dashboard</a>
+      <a href="/create-meal-plan" class="<%= activePage === 'create' ? 'active' : '' %>">Create Plans</a>
+      <a href="/clients" class="<%= activePage === 'clients' ? 'active' : '' %>">Clients</a>
+      <a href="/nutritionist-plan-meals" class="<%= activePage === 'plans' ? 'active' : '' %>">Plans</a>
+    <% } else if (user && user.role === 'fit_instructor') { %>
+      <a href="/instructor-dash" class="<%= activePage === 'dash' ? 'active' : '' %>">Dashboard</a>
+      <a href="/create-workout" class="<%= activePage === 'create' ? 'active' : '' %>">Create Workout</a>
+      <a href="/clients" class="<%= activePage === 'clients' ? 'active' : '' %>">Clients</a>
+      <a href="/my-workouts" class="<%= activePage === 'plans' ? 'active' : '' %>">Plans</a>
+    <% } else if (user && user.role === 'admin') { %>
+      <a href="/admin-dash" class="<%= activePage === 'dash' ? 'active' : '' %>">Dashboard</a>
+      <a href="#prof-overview" class="">Professionals</a>
+      <a href="#users" class="">Clients</a>
+      <a href="/payments" class="">Payments</a>
+    <% } else if (user && user.role === 'user') { %>
+      <a href="/regular/profile" class="<%= activePage === 'profile' ? 'active' : '' %>">My Profile</a>
+      <a href="/my-progress" class="<%= activePage === 'progress' ? 'active' : '' %>">My Progress</a>
+      <a href="/my-plans" class="<%= activePage === 'plans' ? 'active' : '' %>">My Plans</a>
+    <% } %>
 
-    <%} else if ( user && user.role === 'fit_instructor'){%>
-    <a href="/instructor-dash">Dashboard</a>
-    <a href="#workout">Premium</a>
-    <a href="#nutrition">Create Plans</a>
-    <a href="#profile"><%= user.username%></a>
-    <a href="/logout">Logout</a>
-
-    <%} else if (user && user.role === 'user'){%>
-    <a href="/user-dash">Dashboard</a>
-    <a href="/user-dash">Nutrition</a>
-    <a href="/regular/saved_meal_plans">Plans</a>
-    <a href="#progress">Progress</a>
-    <a href="/regular/profile"><%= user.username %></a>
-    <a href="/logout">Logout</a>
-
-    <%} else if (user && user.role === 'admin'){%>
-    <a href="/">Dashboard</a>
-    <a href="#workout">Workout Plans</a>
-    <a href="#nutrition">Nutrition Plans</a>
-    <a href="#progress">Progress</a>
-    <a href="/regular/profile"><%= user.username%></a>
-    <a href="/logout">Logout</a>
-    <%} else{%>
-    <a href="/">Home</a>
-    <a href="/login">Login</a>
-    <a href="/logout">Logout</a>
-    <%}%>
+    <% if (user) { %>
+      <a href="/regular/profile" class="user-link">@<%= user.username %></a>
+      <a href="/logout" class="logout">Logout</a>
+    <% } %>
   </nav>
-  <img src="/images/menu.png" alt="menu" class="hamburger" />
-</header>
-<style>
-  .navbar a {
-    display: block;
-    text-decoration: none;
-    color: #c9d9e1;
-    font-size: 15px;
-    align-items: center;
-    padding: 5px;
-    border-radius: 5px;
-  
-  }
-  .navbar > a:hover {
-    background-color: #f7f7f796;
-    color: #02263a;
-  }
-  .hero {
-    position: sticky;
-    top: 0;
-    left: 0;
-    z-index: 1000;
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    align-items: center;
-    background-color: #6c93db;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-  }
-  .hero > a > img {
-    display: block;
-    width: 9%;
-    background-color: #a2d0e8;
-    border-radius: 5px;
-  }
-  .navbar {
-    display: flex;
-    gap:10px;
-    
-  }
-  .hamburger {
-    display: none;
-    cursor: pointer;
-  }
-  .close {
-    display: none;
-    cursor: pointer;
-  }
-  @media (max-width: 768px) {
-    .navbar {
-      display: none;
-      position: absolute;
-      top: 10px;
-      right: 0;
-      flex-direction: column;
-      background-color: #076396;
-      box-shadow: 0 0 3px 3px #505253;
-    }
-    .navbar a {
-      width: 100%;
-      text-align: center;
-    }
-    .hamburger {
-      display: block;
-      width: 30px;
-      height: 30px;
-    }
-    .close {
-      display: none;
-      position: absolute;
-      top: 2px;
-      right: 112px;
-      cursor: pointer;
-      width: 35px;
-      height: 35px;
-      z-index: 1000;
-    }
-  }
-</style>
-<script>
-  // Add event listener to the hamburger menu
-  document.addEventListener("DOMContentLoaded", function () {
-    const hamburger = document.querySelector(".hamburger");
-    const navbar = document.querySelector(".navbar");
-    const close = document.querySelector(".close");
 
-    hamburger.addEventListener("click", function () {
-      navbar.style.display = "block";
-      close.style.display = "block";
-    });
-    close.addEventListener("click", function () {
-      navbar.style.display = "none";
-      close.style.display = "none";
-    });
-  });
-</script>
-</body>
-</html>
+  <button class="menu-toggle">
+    <img src="/images/menu.png" alt="Menu" class="menu-icon">
+  </button>
+</header>

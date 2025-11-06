@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nutritionist Dashboard</title>
   <link rel="stylesheet" href="nutri.css">
+  <!-- <link rel="stylesheet" href="header.css"> -->
   <style>
     :root{
       --accent: #6c93db;
@@ -97,7 +98,7 @@
   </style> 
 </head>
 <body>
-  <%- include("_header.ejs") %>
+  <%- include("../_header.ejs") %>
 
   <h1 class="text">Nutritionist Dashboard</h1>
   <p class="text"><%= user ? user.username : "No user in session" %></p>
@@ -110,7 +111,7 @@
     </div>
     <div class="clients">
       <p class="small">Total Clients</p>
-      <p class="big">0</p>
+      <p class="big"><%= clients? clients.length : 0 %></p>
     </div>
   </div>
 

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Meal Plans</title>
   <link rel="stylesheet" href="nutri.css">
+ <!--  <link rel="stylesheet" href="header.css"> -->
   <style>
     :root{
       --accent: #6c93db;
@@ -58,7 +59,7 @@
   </style>
 </head>
 <body>
-  <%- include("_header.ejs") %>
+  <%- include("../_header.ejs") %>
 
   <h1 class="text">My Meal Plans</h1>
   <p class="text"><%= user ? user.username : "No user in session" %></p>

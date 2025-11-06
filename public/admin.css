@@ -1,0 +1,52 @@
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+.card {
+  background: #6c93db;
+  border-radius: 10px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  text-align: center;
+  padding: 15px;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+}
+.data-table th, .data-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+.data-table th {
+  background: #f4f4f4;
+}
+.btn-approve, .btn-reject {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+}
+
+.btn-approve {
+  background-color: #28a745;
+}
+
+.btn-reject {
+  background-color: #dc3545;
+}
+
+.btn-approve:hover {
+  background-color: #218838;
+}
+
+.btn-reject:hover {
+  background-color: #c82333;
+}
+
+ .small 
+ { font-size: 0.95rem; margin: 0; opacity: 0.95; color:white;}
+    .big { font-size: 1.8rem; margin: 6px 0 0 0; font-weight: 700; color:white; }

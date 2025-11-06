@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+      <link rel="stylesheet" href="instructor.css">
+      <link rel="stylesheet" href="nutri.css">
+      <!-- <link rel="stylesheet" href="header.css"> -->
+
+</head>
+<body>
+<%- include('../_header.ejs') %>
+
+<div class="form-container">
+  <h2>Create Workout Plan</h2>
+  <p>Hello, <%= username %> 💪</p>
+
+  <% if (success) { %>
+    <div class="alert-success">✅ Workout plan created successfully!</div>
+  <% } %>
+
+  <form action="/create-workout" method="POST" class="workout-form">
+    <label for="title">Plan Title</label>
+    <input type="text" name="title" id="title" required placeholder="e.g. 7-Day Strength Boost">
+
+    <label for="description">Description</label>
+    <textarea name="description" id="description" rows="4" placeholder="Describe the goal and focus of this plan..."></textarea>
+
+    <label for="duration_days">Duration (days)</label>
+    <input type="number" name="duration_days" id="duration_days" placeholder="7">
+
+    <button type="submit" class="btn-create">Save Workout Plan</button>
+  </form>
+</div>
+</body>
+

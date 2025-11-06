@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FitJourney 2.0</title>
+  <link rel="stylesheet" href="index.css">
+  
+</head>
+<body>
+ 
+  <div class="navbar-container">
+    <div class="logo"><img width="80px;" src="/images/fj_logo.png" alt=""></div>
+    <nav class="landing-navbar">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="#register-user">Sign Up</a></li>
+        <li><a href="/contact-us">Contact Us</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="hero">
+    <h1>Welcome to FitJourney 2.0</h1>
+  </div>
+  <div class="hero" >
+    <section class="section1">
+    <div id="register-user">
+      <a href="/">
+        <div class="account_img"><img src="/images/nutrition.jpeg" alt="image"></div>
+      </a>
+      <p class="account_p">Nutritionist Account</p>
+      <a href="/register-nutritionist" class="btn1">Create</a>
+    </div>
+    <div>
+      <div class="account_img"><img src="/images/user2.png" alt="image"></div>
+      <p class="account_p"> Regular user Account</p>
+      <a href="/register-user" class="btn1">Create</a>
+    </div>
+    <div>
+      <div class="account_img"><img src="/images/fitness.jpeg" alt="image"></div>
+      <p class="account_p">Instructor Account</p>
+      <a href="/register-instructor" class="btn1">Create</a>
+    </div>
+    </section>
+    <div  class="login-link">
+     <a href="/login" >Login here</a>
+  </div>
+    </div>
+   <!--  <footer class="foooter">
+
+    </footer> -->
+   
+   
+  
+  <script>
+    const login = document.getElementById("user")
+    login.addEventListener("click",()=>{
+   document.getElementById("register").style.display="block"
+   document.getElementById("overlay").style.display="flex"
+    })
+  </script>
+</body>
+</html>
