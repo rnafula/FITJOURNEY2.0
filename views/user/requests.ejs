@@ -185,12 +185,21 @@
                 </div>
               <% } %>
 
-              <% if (request.status === "approved") { %>
+
+              <!-- new version -->
+   <% if (request.status === "approved") { %>
+    <a href="/pay/<%= request.id %>" class="pay-btn">Pay Now (Ksh <%= request.professional_charges %>)</a>
+   <% } %>
+
+              
+              <!-- older versin -->
+
+             <!--  <% if (request.status === "approved") { %>
                 <form id="pay-form-<%= request.id %>" action="/pay/<%= request.id %>" method="POST">
                 <button type="submit" class="pay-btn">Pay Now (Ksh <%= request.professional_charges %>)</button>
                 </form>
 
-              <% } %>
+              <% } %> -->
 
               <% if (request.status === "paid") { %>
                   <div class="paid">

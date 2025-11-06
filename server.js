@@ -4,9 +4,12 @@ const bcrypt =require("bcrypt")
 const ejs = require("ejs")
 const cors = require("cors");
 const db = require('./config/db');
+const axios =require("axios")
+const dotenv =require("dotenv")
+const getAccessToken = require("./mpesaAccessToken.js")
 
 const path =require("path")
-
+ dotenv.config()
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.json()); // for JSON
@@ -742,6 +745,35 @@ app.post("/mealplans/:id/add-meal", async (req,res)=>{
       }
 })
 // user creating a request
+//sandbox pay get route
+app.get("/pay/:id", requireLogin, async (req, res) => {
+  const requestId = req.params.id;
+  const user_id = req.session.user.id
+
+  // Fetch the amount from the database based on request ID
+  
+//
+const [requests] = await db.query(
+  `SELECT r.*, 
+          u.username AS professional_name, 
+          u.role AS professional_role,
+          u.client_charges AS professional_charges
+   FROM requests r
+   JOIN users u ON r.professional_id = u.id
+   WHERE r.user_id = ? AND r.id = ?`,
+  [user_id, requestId]
+);
+
+//
+ console.log(requests);
+ 
+  if (!requests) {
+    return res.send("Request not found");
+  }
+
+  res.render("user/pay.ejs", { request:requests, requestId});
+  
+});
 
 
 //mock payment api
@@ -794,6 +826,88 @@ console.log("Type of value:", typeof pros[0].charges);
     res.status(500).send("Payment failed, refresh and try again")
   }
 })
+/* import { initiateSTKPush } from "mpesaController.js"; // adjust the path if needed */
+
+/* app.post("/pay/:id", requireLogin, requireRole, async (req, res) => {
+  try {
+    const user = req.session.user;
+    const requestId = req.params.id;
+    const { phone } = req.body; // capture M-Pesa number from form
+
+    console.log("💡 Payment attempt:", { requestId, user, phone });
+
+    // Verify the request belongs to the logged-in user
+    const [requests] = await db.query(
+      "SELECT * FROM requests WHERE id = ? AND user_id = ?",
+      [requestId, user.id]
+    );
+
+    if (requests.length === 0) {
+      return res.status(403).send("Request not found");
+    }
+
+    const request = requests[0];
+
+    // Ensure request is approved and not already paid
+    if (request.status === "paid") {
+      console.log("Request already paid:", requestId);
+      return res.redirect("/requests");
+    }
+    if (request.status !== "approved") {
+      console.log("Request not approved yet", requestId, "status:", request.status);
+      return res.redirect("/requests");
+    }
+
+    console.log(`✅ Ready to pay for request ${requestId}`);
+
+    // Get professional charges
+    const [pros] = await db.query(
+      "SELECT client_charges AS charges, username AS professional_name FROM users WHERE id = ?",
+      [request.professional_id]
+    );
+    if (!pros || pros.length === 0) {
+      console.log("Professional not found for request", request.professional_id);
+      return res.redirect("/requests");
+    }
+
+    const amount = parseInt(pros[0].charges);
+    if (!amount || amount <= 0) {
+      console.log("Invalid charges:", pros[0].charges);
+      return res.redirect("/requests");
+    }
+
+    console.log("💰 Charging amount:", amount, "for request:", requestId);
+
+    // 🔹 Initiate M-Pesa STK Push
+    const response = await initiateSTKPush(
+      phone,
+      amount,
+      `FJ-${requestId}`,
+      `Payment to ${pros[0].professional_name}`
+    );
+
+    console.log("📲 M-Pesa API Response:", response);
+
+    // Check if the push request was accepted
+    if (response?.ResponseCode === "0") {
+      // Save the pending payment
+      await db.query(
+        "INSERT INTO payments (request_id, amount, method, transaction_id, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())",
+        [requestId, amount, "M-Pesa", response.CheckoutRequestID, "pending"]
+      );
+
+      console.log("💾 Payment record created, awaiting callback...");
+      return res.send("STK Push initiated — check your phone to complete payment.");
+    } else {
+      console.error("❌ STK Push failed:", response);
+      return res.status(400).send("Failed to initiate M-Pesa payment. Try again.");
+    }
+  } catch (err) {
+    console.error("💥 Payment error:", err);
+    res.status(500).send("Payment failed, refresh and try again.");
+  }
+}); */
+
 
 // Handle new plan request
 app.post("/requests", requireLogin, requireRole, async (req, res) => {
@@ -825,6 +939,55 @@ app.get("/logout", (req, res) => {
     res.redirect("/login"); // or redirect to "/"
   });
 });
+//STK Push Route
+app.post("/stkpush", async (req, res) => {
+  try {
+    const token = await getAccessToken();
+
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[^0-9]/g, "")
+      .slice(0, 14);
+
+    const password = Buffer.from(
+      process.env.MPESA_SHORTCODE + process.env.MPESA_PASSKEY + timestamp
+    ).toString("base64");
+
+    const payload = {
+      BusinessShortCode: process.env.MPESA_SHORTCODE,
+      Password: password,
+      Timestamp: timestamp,
+      TransactionType: "CustomerPayBillOnline",
+      Amount: req.body.amount, // e.g. 1
+      PartyA: req.body.phone, // e.g. 254712345678
+      PartyB: process.env.MPESA_SHORTCODE,
+      PhoneNumber: req.body.phone,
+      CallBackURL: process.env.MPESA_CALLBACK_URL,
+      AccountReference: "FitJourney",
+      TransactionDesc: "Payment for FitJourney Plan"
+    };
+
+    const response = await axios.post(
+      "https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest",
+      payload,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    res.json({
+      success: true,
+      message: "STK Push initiated",
+      data: response.data,
+    });
+  } catch (error) {
+    console.error("STK Push error:", error.response?.data || error.message);
+    res.status(500).json({ success: false, error: "Failed to initiate STK Push" });
+  }
+});
+app.post("/callback", (req, res) => {
+  console.log("Callback from M-Pesa:", req.body);
+  res.status(200).send("OK");
+});
+
 
        //start app
 app.listen(3000, () => {
